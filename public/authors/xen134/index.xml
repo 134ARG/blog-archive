@@ -8,10 +8,28 @@
     <language>en</language>
     <copyright>&amp;copy; 2021 &lt;a href=&#34;https://blog.xen134.cn/&#34;&gt;xen134&lt;/a&gt;
 </copyright>
-    <lastBuildDate>Tue, 20 Apr 2021 11:40:07 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 24 Sep 2021 13:54:08 +0800</lastBuildDate>
     
 	<atom:link href="/authors/xen134/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Deployment of openMPI VM cluster</title>
+      <link>/posts/openmpi-cluster/openmpi-deploy/</link>
+      <pubDate>Fri, 24 Sep 2021 13:54:08 +0800</pubDate>
+      
+      <guid>/posts/openmpi-cluster/openmpi-deploy/</guid>
+      <description>VM image for openMPI study.</description>
+    </item>
+    
+    <item>
+      <title>暑期实习简要总结</title>
+      <link>/posts/internship/internship-summary/</link>
+      <pubDate>Mon, 06 Sep 2021 22:39:04 +0800</pubDate>
+      
+      <guid>/posts/internship/internship-summary/</guid>
+      <description>一篇对实习经历简明扼要的总结。</description>
+    </item>
     
     <item>
       <title>有关编译器&amp;lisp的一些胡思乱想</title>

@@ -93,7 +93,7 @@
     },
     "headline": "有关编译器\u0026lisp的一些胡思乱想 | AST writer!","datePublished": "2021-04-20T11:40:07+08:00",
     "dateModified": "2021-04-20T11:40:07+08:00",
-    "wordCount":  3800 ,
+    "wordCount":  3802 ,
     "author": {
         "@type": "Person",
         "name": "xen134"
@@ -244,6 +244,7 @@
 
         <div class="content">
             <h2 id="思想碎片">思想碎片</h2>
+<p>(2021.4.21 )</p>
 <p>Scanner，Parser，Code generator， Optimizer。Lisp的parser理论上直接是一个AST constructor；或者根本就没有scanner和parser之分，直接尝试从源码（source）构建AST，出错则语法报错，成功则一步完成S+P的工作（构建AST时不仅有语法要求，也有语义要求，而lisp的CFG相当简单直接，又几乎没有复杂NCFG）。</p>
 <p>对于top-down parser来说，每一个non-terminal都被实现为一个过程，从&lt;program&gt;或者类似名称的指代完整程序的symbol开始，一路消减到terminal symbol。这个过程的机制类似lisp中常用的利用递归遍历list。</p>
 <p>lisp中基本没有（复杂意义上的）上下文相关语法。同样类型的符号在不同上下文中有不同的语义——严格意义上来讲是存在的，但不同的语义均可通过简单地判断s表达式的第一个元素来确定。而s表达式的首元素只有三种：函数（function），特殊操作符（special operator），宏（macro）。</p>
@@ -312,6 +313,9 @@
         
 <div class="flex flex-col md:flex-row md:justify-between -mx-2 mt-4 px-2 pt-4 border-t">
     <div>
+        
+        <span class="block font-bold">Previous</span>
+        <a href="/posts/internship/internship-summary/" class="block">暑期实习简要总结</a>
         
     </div>
     <div class="md:text-right mt-4 md:mt-0">
