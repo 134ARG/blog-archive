@@ -1,0 +1,3057 @@
+<!DOCTYPE html>
+<html lang='en' ><meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+
+
+<title>Notes2 | AST writer!</title>
+<link rel="stylesheet" href="/css/eureka.min.css">
+<script defer src="/js/eureka.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload"
+  href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap"
+  as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.0/build/styles/solarized-light.min.css"
+   media="print"
+  onload="this.media='all';this.onload=null" crossorigin>
+<script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.0/build/highlight.min.js"
+   crossorigin></script>
+
+  <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.0/build/languages/dart.min.js"
+     crossorigin></script>
+
+  <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.0/build/languages/c.min.js"
+     crossorigin></script>
+
+  <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10.1.0/build/languages/lisp.min.js"
+     crossorigin></script>
+
+<script defer src="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14.0/js/all.min.js"
+   integrity="sha256-uNYoXefWRqv&#43;PsIF/OflNmwtKM4lStn9yrz2gVl6ymo="  crossorigin></script>
+
+
+
+
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css"
+   integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3&#43;Aro6EYUG4&#43;cU&#43;KJWu/X"  media="print"
+  onload="this.media='all';this.onload=null" crossorigin>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" 
+  integrity="sha384-g7c&#43;Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI&#43;sEnkvrMWph2EDg4"  crossorigin></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js"
+   integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC&#43;Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa"  crossorigin></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    renderMathInElement(document.body, {
+      delimiters: [
+        { left: "$$", right: "$$", display: true },
+        { left: "$", right: "$", display: false },
+        { left: "\\(", right: "\\)", display: false },
+        { left: "\\[", right: "\\]", display: true }
+      ],
+    });
+  });
+</script>
+
+
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid@8.9.2/dist/mermaid.min.js" 
+  integrity="sha256-Zmpaaj&#43;GXFsPF5WdPArSrnW3b30dovldeKsW00xBVwE="  crossorigin></script>
+
+
+<link rel="icon" type="image/png" sizes="32x32" href="/images/headimg_hu841d9ed8a9386ac09e731f06f3f60a38_15116_32x32_fill_q75_box_center.jpeg">
+<link rel="apple-touch-icon" sizes="180x180" href="/images/headimg_hu841d9ed8a9386ac09e731f06f3f60a38_15116_180x180_fill_q75_box_center.jpeg">
+
+<meta name="description"
+  content="Random Process: noise noise analysis to the SNR (signal to noise power ratio: (signal)/(noise)) of DSB-SC system  Random process sample space: sampling produces a sequence: time sqeuence.
+fix the time point: t0: X(s1, t0), the function of the sample and time. That gives a random variable.
+Then omit s1 here. X(t0).
+Define:
+ Mean: E[X(t)] = ∫fX(t)(x)xdx
+ Auto-correlation: Rx(t1, t2) = E[X(t1)X(t2)] = ∫∫fX(t1)X(t2)(x1, x2)x1x2dx1dx2. conjugate of X2 when complex number involved.
+ wide sense stationary (WSS): μx = μ(t), Rx(t1, t2) = Rx(t2 − t1) (only the difference matters, shift!">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+      "@type": "ListItem",
+      "position": 1 ,
+      "name":"Docs",
+      "item":"/docs/"},{
+      "@type": "ListItem",
+      "position": 2 ,
+      "name":"Notes2",
+      "item":"/docs/3050notes/notes2/"}]
+}
+</script>
+
+
+
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "/docs/3050notes/notes2/"
+    },
+    "headline": "Notes2 | AST writer!","datePublished": "2021-12-22T00:29:02+08:00",
+    "dateModified": "2021-12-22T00:29:02+08:00",
+    "wordCount":  3085 ,
+    "publisher": {
+        "@type": "Person",
+        "name": "xen134",
+        "logo": {
+            "@type": "ImageObject",
+            "url": "/images/headimg.jpeg"
+        }
+        },
+    "description": "Random Process: noise noise analysis to the SNR (signal to noise power ratio: (signal)\/(noise)) of DSB-SC system  Random process sample space: sampling produces a sequence: time sqeuence.\nfix the time point: t0: X(s1, t0), the function of the sample and time. That gives a random variable.\nThen omit s1 here. X(t0).\nDefine:\n Mean: E[X(t)] = ∫fX(t)(x)xdx\n Auto-correlation: Rx(t1, t2) = E[X(t1)X(t2)] = ∫∫fX(t1)X(t2)(x1, x2)x1x2dx1dx2. conjugate of X2 when complex number involved.\n wide sense stationary (WSS): μx = μ(t), Rx(t1, t2) = Rx(t2 − t1) (only the difference matters, shift!"
+}
+</script><meta property="og:title" content="Notes2 | AST writer!" />
+<meta property="og:type" content="article" />
+
+
+<meta property="og:image" content="/images/headimg.jpeg">
+
+
+<meta property="og:url" content="/docs/3050notes/notes2/" />
+
+
+
+
+<meta property="og:description" content="Random Process: noise noise analysis to the SNR (signal to noise power ratio: (signal)/(noise)) of DSB-SC system  Random process sample space: sampling produces a sequence: time sqeuence.
+fix the time point: t0: X(s1, t0), the function of the sample and time. That gives a random variable.
+Then omit s1 here. X(t0).
+Define:
+ Mean: E[X(t)] = ∫fX(t)(x)xdx
+ Auto-correlation: Rx(t1, t2) = E[X(t1)X(t2)] = ∫∫fX(t1)X(t2)(x1, x2)x1x2dx1dx2. conjugate of X2 when complex number involved.
+ wide sense stationary (WSS): μx = μ(t), Rx(t1, t2) = Rx(t2 − t1) (only the difference matters, shift!" />
+
+
+
+
+<meta property="og:locale" content="en" />
+
+
+
+
+<meta property="og:site_name" content="AST writer!" />
+
+
+
+
+
+
+<meta property="article:published_time" content="2021-12-22T00:29:02&#43;08:00" />
+
+
+<meta property="article:modified_time" content="2021-12-22T00:29:02&#43;08:00" />
+
+
+
+<meta property="article:section" content="docs" />
+
+
+
+
+<body class="flex flex-col min-h-screen">
+  <header class="fixed flex items-center w-full min-h-16 pl-scrollbar z-50 bg-secondary-bg shadow-sm">
+    <div class="w-full max-w-screen-xl mx-auto"><script>
+    let storageColorScheme = localStorage.getItem("lightDarkMode")
+    if (((storageColorScheme == 'Auto' || storageColorScheme == null) && window.matchMedia("(prefers-color-scheme: dark)").matches) || storageColorScheme == "Dark") {
+        document.getElementsByTagName('html')[0].classList.add('dark')
+    }
+</script>
+<nav class="flex items-center justify-between flex-wrap px-4 py-4 md:py-0">
+    <a href="/" class="mr-6 text-primary-text text-xl font-bold">AST writer!</a>
+    <button id="navbar-btn" class="md:hidden flex items-center px-3 py-2" aria-label="Open Navbar">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div id="target"
+        class="hidden block md:flex md:flex-grow md:justify-between md:items-center w-full md:w-auto text-primary-text z-20">
+        <div class="md:flex md:h-16 text-sm md:flex-grow pb-4 md:pb-0 border-b md:border-b-0">
+            <a href="/posts/" class="block mt-4 md:inline-block md:mt-0 md:h-(16-4px) md:leading-(16-4px) box-border md:border-t-2 md:border-b-2  border-transparent  mr-4">Posts</a>
+            <a href="/docs/" class="block mt-4 md:inline-block md:mt-0 md:h-(16-4px) md:leading-(16-4px) box-border md:border-t-2 md:border-b-2  selected-menu-item  mr-4">Docs</a>
+            <a href="/authors/xen134/" class="block mt-4 md:inline-block md:mt-0 md:h-(16-4px) md:leading-(16-4px) box-border md:border-t-2 md:border-b-2  border-transparent  mr-4">About</a>
+        </div>
+
+        <div class="flex">
+            <div class="relative pt-4 md:pt-0">
+                <div class="cursor-pointer hover:text-eureka" id="lightDarkMode">
+                    <i class="fas fa-adjust"></i>
+                </div>
+                <div class="fixed hidden inset-0 opacity-0 h-full w-full cursor-default z-30" id="is-open">
+                </div>
+                <div class="absolute flex flex-col left-0 md:left-auto right-auto md:right-0 hidden bg-secondary-bg w-48 rounded py-2 border border-tertiary-bg cursor-pointer z-40"
+                    id='lightDarkOptions'>
+                    <span class="px-4 py-1 hover:text-eureka" name="Light">Light</span>
+                    <span class="px-4 py-1 hover:text-eureka" name="Dark">Dark</span>
+                    <span class="px-4 py-1 hover:text-eureka" name="Auto">Auto</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed hidden inset-0 opacity-0 h-full w-full cursor-default z-0" id="is-open-mobile">
+    </div>
+
+</nav>
+<script>
+    let element = document.getElementById('lightDarkMode')
+    if (storageColorScheme == null || storageColorScheme == 'Auto') {
+        document.addEventListener('DOMContentLoaded', () => {
+            switchMode('Auto')
+        })
+    } else if (storageColorScheme == "Light") {
+        element.firstElementChild.classList.remove('fa-adjust')
+        element.firstElementChild.setAttribute("data-icon", 'sun')
+        element.firstElementChild.classList.add('fa-sun')
+    } else if (storageColorScheme == "Dark") {
+        element.firstElementChild.classList.remove('fa-adjust')
+        element.firstElementChild.setAttribute("data-icon", 'moon')
+        element.firstElementChild.classList.add('fa-moon')
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        getcolorscheme();
+        switchBurger();
+    });
+</script>
+</div>
+  </header>
+  <main class="flex-grow pt-16">
+    <div class="pl-scrollbar">
+      <div class="w-full max-w-screen-xl lg:px-4 xl:px-8 mx-auto">
+
+
+<div class="lg:pt-12">
+    <div class="flex flex-col md:flex-row bg-secondary-bg rounded">
+        <div class="md:w-1/4 lg:w-1/5 border-r">
+            <div class="sticky top-16 pt-6">
+                
+
+
+
+
+
+<div id="sidebar-title" class="md:hidden mx-4 px-2 pt-4 pb-2 md:border-b text-tertiary-text md:text-primary-text">
+    <span class="font-semibold">Table of Contents</span>
+    <i class="fas fa-caret-right ml-1"></i>
+</div>
+
+<div id="sidebar-toc"
+    class="hidden md:block overflow-y-auto mx-6 md:mx-0 pr-6 pt-2 md:max-h-doc-sidebar bg-primary-bg md:bg-transparent">
+    <div class="flex flex-wrap ml-4 -mr-2 p-2 bg-secondary-bg md:bg-primary-bg rounded">
+        <a class="text-eureka hover:text-eureka"
+            href="/docs/3050notes/notes2/">Notes2</a>
+        
+        
+        
+
+
+    </div>
+    
+<ul class="pl-6">
+    
+</ul>
+
+</div>
+
+
+
+            </div>
+
+        </div>
+        <div class="w-full md:w-3/4 lg:w-4/5 pb-8 pt-2 md:pt-8">
+            <div class="w-full lg:w-3/4 pl-6 ml-0 mr-auto">
+                <h1 class="font-bold text-3xl text-primary-text">Notes2</h1>
+                <div class="flex flex-wrap flex-row items-center mt-2 text-tertiary-text">
+    <div class="mr-6 my-2">
+        <i class="fas fa-calendar mr-1"></i>
+        <span>2021-12-22</span>
+    </div>
+    <div class="mr-6 my-2">
+        <i class="fas fa-clock mr-1"></i>
+        <span>15 min read</span>
+    </div>
+    
+    
+
+    
+</div>
+            </div>
+            <div class="flex">
+                <div class="w-full lg:w-3/4 px-6">
+                    
+                    
+                    <div class="content">
+                        <div class="document">
+
+
+<div class="section" id="random-process-noise">
+<h2>Random Process: noise</h2>
+<ul class="simple">
+<li>noise</li>
+<li>analysis to the SNR (signal to noise power ratio:
+<span class="formula"><span class="fraction"><span class="ignored">(</span><span class="numerator"><i>signal</i></span><span class="ignored">)/(</span><span class="denominator"><i>noise</i></span><span class="ignored">)</span></span></span>) of DSB-SC system</li>
+</ul>
+<div class="section" id="random-process">
+<h3>Random process</h3>
+<p>sample space: sampling produces a sequence: time sqeuence.</p>
+<p>fix the time point: <span class="formula"><i>t</i><sub>0</sub></span>: <span class="formula"><i>X</i>(<i>s</i><sub>1</sub>, <i>t</i><sub>0</sub>)</span>, the function of
+the sample and time. That gives a random variable.</p>
+<p>Then omit <span class="formula"><i>s</i><sub>1</sub></span> here. <span class="formula"><i>X</i>(<i>t</i><sub>0</sub>)</span>.</p>
+<p>Define:</p>
+<ul>
+<li><p class="first">Mean: <span class="formula"><i>E</i>[<i>X</i>(<i>t</i>)] = <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>f</i><sub><i>X</i>(<i>t</i>)</sub>(<i>x</i>)<i>xdx</i></span></p>
+</li>
+<li><p class="first">Auto-correlation:
+<span class="formula"><i>R</i><sub><i>x</i></sub>(<i>t</i><sub>1</sub>, <i>t</i><sub>2</sub>) = <i>E</i>[<i>X</i>(<i>t</i><sub>1</sub>)<i>X</i>(<i>t</i><sub>2</sub>)] = <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>f</i><sub><i>X</i>(<i>t</i><sub>1</sub>)<i>X</i>(<i>t</i><sub>2</sub>)</sub>(<i>x</i><sub>1</sub>, <i>x</i><sub>2</sub>)<i>x</i><sub>1</sub><i>x</i><sub>2</sub><i>dx</i><sub>1</sub><i>dx</i><sub>2</sub></span>.
+conjugate of <span class="formula"><i>X</i><sub>2</sub></span> when complex number involved.</p>
+</li>
+<li><p class="first">wide sense stationary (WSS): <span class="formula"><i>μ</i><sub><i>x</i></sub> = <i>μ</i>(<i>t</i>)</span>,
+<span class="formula"><i>R</i><sub><i>x</i></sub>(<i>t</i><sub>1</sub>, <i>t</i><sub>2</sub>) = <i>R</i><sub><i>x</i></sub>(<i>t</i><sub>2</sub> − <i>t</i><sub>1</sub>)</span> (only the difference matters,
+shift!)</p>
+<p>In other words, the process can be viewed as a kind of
+time-invariance.</p>
+<p>For wide sense stationary which is a little weak than the strict
+stationary since it only requires the first moment (mean value) and
+autocovariance remain unchanged with respect to the time &amp; second
+moment is finite. (TODO: an example of second moment?)</p>
+</li>
+</ul>
+<p>P.S. The autocovariance: which shows the combined variance of multiple
+variables: the changing tendencies are the same for the two variables:
+positive, if opposite: negative.</p>
+<p>For stationary, the autocovariance is:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<span class="unknown">\begin{flalign} <span class="arrayrow">
+<span class="arraycell align-l">
+<i>C</i><sub><i>x</i></sub>(<i>t</i><sub>1</sub>, <i>t</i><sub>2</sub>)
+</span>
+<span class="arraycell align-l">
+ = <i>E</i>[(<i>X</i>(<i>t</i><sub>1</sub>) − <i>μ</i><sub><i>x</i></sub>)(<i>X</i>(<i>t</i><sub>2</sub>) − <i>μ</i><sub><i>x</i></sub>)]
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+
+</span>
+<span class="arraycell align-l">
+ = <i>E</i>(<i>X</i>(<i>t</i><sub>1</sub>)<i>X</i>(<i>t</i><sub>2</sub>)) − <i>μ</i><sub><i>x</i></sub>(<i>E</i>(<i>X</i>(<i>t</i><sub>1</sub>)) + <i>E</i>(<i>X</i>(<i>t</i><sub>2</sub>))) + <i>μ</i><span class="scripts"><sup class="script">2</sup><sub class="script"><i>x</i></sub></span>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+
+</span>
+<span class="arraycell align-l">
+ = <i>R</i><sub><i>x</i></sub>(<i>t</i>1, <i>t</i>2) − <i>μ</i><span class="scripts"><sup class="script">2</sup><sub class="script"><i>x</i></sub></span><span class="unknown">\end</span><i>flalign</i><span class="unknown">\end</span><i>align</i>*
+</span>
+
+</span>
+</span>
+</span>
+
+</span>
+</span>
+</div>
+<p>So the autocorelation function and mean value can determine the
+autocovariance for the stationary process.</p>
+<!-- _properties-of- -->
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">&lt;stdin&gt;</tt>, line 57)</p>
+malformed hyperlink target.</div>
+<div class="system-message">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">&lt;stdin&gt;</tt>, line 58)</p>
+Explicit markup ends without a blank line; unexpected unindent.</div>
+<p>rxτ
+-for-wss:</p>
+<div class="section" id="properties-of-r-x-tau-for-wss">
+<h4>Properties of <span class="formula"><i>R</i><sub><i>x</i></sub>(<i>τ</i>)</span> for WSS</h4>
+<ul>
+<li><p class="first"><span class="formula"><i>R</i><sub><i>x</i></sub>(0) = <i>E</i>[<i>X</i><sup>2</sup>(<i>t</i>)]</span> (average power)</p>
+</li>
+<li><p class="first"><span class="formula"><i>R</i><sub><i>x</i></sub>(<i>τ</i>) = <i>R</i><sub><i>x</i></sub>( − <i>τ</i>)</span>: only difference matters, WSS</p>
+</li>
+<li><p class="first"><span class="formula"><i>R</i><sub><i>x</i></sub>(0) ≥ <span class="unknown">\abs</span><i>R</i><sub><i>x</i></sub>(<i>τ</i>)</span> (relation to itself yields the max
+corelation)</p>
+<p><strong>Proof:</strong></p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<span class="unknown">\begin{flalign} <span class="arrayrow">
+<span class="arraycell align-l">
+0
+</span>
+<span class="arraycell align-l">
+ ≤ <i>E</i>[(<i>X</i>(<i>t</i> + <i>τ</i>)±<i>X</i>(<i>t</i>))<sup>2</sup>]
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+
+</span>
+<span class="arraycell align-l">
+ = <i>E</i>[<i>X</i><sup>2</sup>(<i>t</i> + <i>τ</i>) + <i>X</i><sup>2</sup>(<i>t</i>)]±2<i>R</i><sub><i>x</i></sub>(<i>τ</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+
+</span>
+<span class="arraycell align-l">
+ = <i>E</i>[<i>X</i><sup>2</sup>(<i>t</i> + <i>τ</i>)]±2<i>R</i><sub><i>x</i></sub>(<i>τ</i>) + <i>E</i>[<i>X</i><sup>2</sup>(<i>t</i>)]
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+
+</span>
+<span class="arraycell align-l">
+ → 2<i>R</i><sub><i>x</i></sub>(0)±2<i>R</i><sub><i>x</i></sub>(<i>t</i>) ≥ 0
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+
+</span>
+<span class="arraycell align-l">
+ → <i>R</i><sub><i>x</i></sub>(0) ≥ <i>R</i><sub><i>x</i></sub>(<i>t</i>)<span class="text"> and </span><i>R</i><sub><i>x</i></sub>(0) ≥  − <i>R</i><sub><i>x</i></sub>(<i>t</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+
+</span>
+<span class="arraycell align-l">
+ → <i>R</i><sub><i>x</i></sub>(0) ≥ <span class="unknown">\abs</span><i>R</i><sub><i>x</i></sub>(<i>t</i>)<span class="unknown">\end</span><i>flalign</i><span class="unknown">\end</span><i>align</i>*
+</span>
+
+</span>
+</span>
+</span>
+
+</span>
+</span>
+</div>
+<p><strong>Example:</strong></p>
+<p><span class="formula"><i>x</i>(<i>t</i>) = <i>Acos</i>(2<i>π</i><i>f</i><sub><i>ct</i></sub> + <i>θ</i>)</span>:</p>
+<p>where <span class="formula"><i>θ</i></span> is RV. uniformly distributed in
+<span class="formula">[ − <i>π</i>, <i>π</i>]</span>.</p>
+<p>so <span class="formula"><i>x</i>(<i>t</i>)</span> is a random process.</p>
+<p>Then the mean value:
+<span class="formula"><i>E</i>[<i>x</i>] = <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="scripts"><sup class="script"><i>π</i></sup><sub class="script"> − <i>π</i></sub></span><span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator">2<i>π</i></span><span class="ignored">)</span></span><i>Acos</i>(2<i>π</i><i>f</i><sub><i>ct</i></sub> + <i>θ</i>)<i>d</i><i>θ</i> = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>A</i></span><span class="ignored">)/(</span><span class="denominator">2<i>π</i></span><span class="ignored">)</span></span><i>sin</i>(2<i>π</i><i>f</i><sub><i>ct</i></sub> + <i>θ</i>)<span class="scripts"><sup class="script"><i>π</i></sup><sub class="script"> − <i>π</i></sub></span> = 0</span>.</p>
+<p>The auto correlation:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<span class="unknown">\begin{flalign} <span class="arrayrow">
+<span class="arraycell align-l">
+<i>E</i>[<i>X</i>(<i>t</i> + <i>τ</i>)<i>X</i>(<i>t</i>)]
+</span>
+<span class="arraycell align-l">
+ = <i>E</i>[<i>A</i><sup>2</sup><i>cos</i>(2<i>π</i><i>f</i><sub><i>c</i></sub>(<i>t</i> + <i>τ</i>) + <i>θ</i>)<i>cos</i>(2<i>π</i><i>f</i><sub><i>ct</i></sub> + <i>θ</i>)]
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+
+</span>
+<span class="arraycell align-l">
+ = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>A</i><sup>2</sup></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><i>E</i>[<i>cos</i>(4<i>π</i><i>f</i><sub><i>ct</i></sub> + 2<i>π</i><i>f</i><sub><i>c</i></sub><i>τ</i> + 2<i>θ</i>) + <i>cos</i>(2<i>π</i><i>f</i><sub><i>c</i></sub><i>τ</i>)]
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+
+</span>
+<span class="arraycell align-l">
+ = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>A</i><sup>2</sup></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><i>cos</i>(2<i>π</i><i>f</i><sub><i>c</i></sub><i>τ</i>) + <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>A</i><sup>2</sup></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><span class="limits"><sup class="limit"><i>π</i></sup><span class="limit"><span class="bigoperator integral">∫</span></span><sub class="limit"> − <i>π</i></sub></span><span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator">2<i>π</i></span><span class="ignored">)</span></span><i>cos</i>(4<i>π</i><i>f</i><sub><i>ct</i></sub> + 2<i>π</i><i>f</i><sub><i>c</i></sub><i>τ</i> + 2<i>θ</i>)<i>d</i><i>θ</i>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+
+</span>
+<span class="arraycell align-l">
+ = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>A</i><sup>2</sup></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><i>cos</i>(2<i>π</i><i>f</i><sub><i>c</i></sub><i>τ</i>) + 0<span class="unknown">\end</span><i>flalign</i><span class="unknown">\end</span><i>align</i>*
+</span>
+
+</span>
+</span>
+</span>
+
+</span>
+</span>
+</div>
+<p>So it only depends on <span class="formula"><i>τ</i></span>.</p>
+</li>
+</ul>
+<p>Generally, the autocorrelation gives a measurement for the relation of
+differrent time intervals on a specific random variable. The higher the
+changing speed of the random process, the quicker the value of
+autocorrelation drops, which means for the same interval, the
+rapid-changing random process will have lower value.</p>
+</div>
+<div class="section" id="cross-correlation">
+<h4>Cross correlation</h4>
+<p>two random processes <span class="formula"><i>X</i>(<i>t</i>), <i>Y</i>(<i>t</i>)</span></p>
+<div class="formula">
+<i>R</i><sub><i>XY</i></sub>(<i>t</i><sub>1</sub>, <i>t</i><sub>2</sub>) = <i>E</i>[<i>X</i>(<i>t</i><sub>1</sub>)<i>Y</i>(<i>t</i><sub>2</sub>)]
+</div>
+<p>Example:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>y</i><sub>1</sub>(<i>t</i>) = <i>x</i>(<i>t</i>)<i>cos</i>(2<i>π</i><i>f</i><sub><i>ct</i></sub> + <i>θ</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+<i>y</i><sub>2</sub>(<i>t</i>) = <i>x</i>(<i>t</i>)<i>sin</i>(2<i>π</i><i>f</i><sub><i>ct</i></sub> + <i>θ</i>)
+</span>
+
+</span>
+</span>
+</div>
+<p>where <span class="formula"><i>x</i>(<i>t</i>)</span> is random process, <span class="formula"><i>θ</i></span> uniformly
+distribute in <span class="formula">[ − <i>π</i>, <i>π</i>]</span>. And they are independent.</p>
+<p>Then the cross correlation:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<span class="unknown">\begin{flalign} <span class="arrayrow">
+<span class="arraycell align-l">
+<i>E</i>[<i>Y</i><sub>1</sub>(<i>t</i> + <i>τ</i>)<i>Y</i><sub>2</sub>(<i>t</i>)]
+</span>
+<span class="arraycell align-l">
+ = <i>E</i>[<i>X</i>(<i>t</i> + <i>τ</i>)<i>cos</i>(2<i>π</i><i>f</i><sub><i>c</i></sub>(<i>t</i> + <i>τ</i>) + <i>θ</i>)⋅<i>X</i>(<i>t</i>)<i>sin</i>(2<i>π</i><i>f</i><sub><i>ct</i></sub> + <i>θ</i>)]
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+
+</span>
+<span class="arraycell align-l">
+ = <i>E</i><sub><i>x</i></sub>[<i>X</i>(<i>t</i> + <i>τ</i>)<i>X</i>(<i>t</i>)]⋅<i>E</i><sub><i>θ</i></sub>[<i>cos</i>(2<i>π</i><i>f</i><sub><i>c</i></sub>(<i>t</i> + <i>τ</i>) + <i>θ</i>)<i>sin</i>(2<i>π</i><i>f</i><sub><i>ct</i></sub> + <i>θ</i>)]
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+
+</span>
+<span class="arraycell align-l">
+ = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>R</i><sub><i>x</i></sub>(<i>τ</i>)</span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span>⋅<i>E</i><sub><i>θ</i></sub>[<i>sin</i>(4<i>π</i><i>f</i><sub><i>ct</i></sub> + 2<i>π</i><i>f</i><sub><i>c</i></sub><i>τ</i> + <i>θ</i>) − <i>sin</i>(2<i>π</i><i>f</i><sub><i>c</i></sub><i>τ</i>)]
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+
+</span>
+<span class="arraycell align-l">
+ =  − <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>R</i><sub><i>x</i></sub>(<i>τ</i>)</span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><i>sin</i>(2<i>π</i><i>f</i><sub><i>c</i></sub><i>τ</i>) + <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>R</i><sub><i>x</i></sub>(<i>τ</i>)</span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><span class="limits"><sup class="limit"><i>π</i></sup><span class="limit"><span class="bigoperator integral">∫</span></span><sub class="limit"> − <i>π</i></sub></span>...<i>d</i><i>θ</i>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+
+</span>
+<span class="arraycell align-l">
+ =  − <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>R</i><sub><i>x</i></sub>(<i>τ</i>)</span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><i>sin</i>(2<i>π</i><i>f</i><sub><i>c</i></sub><i>τ</i>) + 0
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+<span class="unknown">\end</span><i>flalign</i><span class="unknown">\end</span><i>align</i>*
+</span>
+
+</span>
+</span>
+</span>
+
+</span>
+</span>
+</div>
+<p>Note that when <span class="formula"><i>τ</i> = 0</span> the <span class="formula"><i>R</i><sub><i>Y</i><sub>1</sub><i>Y</i><sub>2</sub></sub>(0) = 0</span>. Recall
+that in QAM which shows the sin &amp; cos are orthogonal.</p>
+</div>
+<div class="section" id="consider-lti-system">
+<h4>consider LTI system</h4>
+<p>Consider a LTI system. The output will be a convolution. What if the
+input is r.p. ?</p>
+<div class="formula">
+<i>Y</i>(<i>t</i>) = <i>h</i>(<i>t</i>)*<i>X</i>(<i>t</i>)
+</div>
+<p>In which <span class="formula"><i>Y</i></span> and <span class="formula"><i>X</i></span> are obviously random variable.</p>
+<ul>
+<li><p class="first">Mean:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<span class="unknown">\begin{flalign} <span class="arrayrow">
+<span class="arraycell align-l">
+<i>μ</i><sub><i>Y</i></sub>(<i>t</i>)
+</span>
+<span class="arraycell align-l">
+ = <i>E</i>[<i>Y</i>(<i>t</i>)]
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+
+</span>
+<span class="arraycell align-l">
+ = <i>E</i>[<span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>h</i>(<i>τ</i>)<i>X</i>(<i>t</i> − <i>τ</i>)<i>d</i><i>τ</i>]
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+
+</span>
+<span class="arraycell align-l">
+ = <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>h</i>(<i>τ</i>)<i>E</i>[<i>X</i>(<i>t</i> − <i>τ</i>)]<i>d</i><i>τ</i>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+
+</span>
+<span class="arraycell align-l">
+ = <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>h</i>(<i>τ</i>)<i>μ</i><sub><i>X</i></sub>(<i>t</i> − <i>τ</i>)<i>d</i><i>τ</i>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+ 
+</span>
+<span class="arraycell align-l">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-l">
+
+</span>
+<span class="arraycell align-l">
+ = <i>μ</i><sub><i>X</i></sub>(<i>t</i>)*<i>h</i>(<i>t</i>)<span class="unknown">\end</span><i>flalign</i><span class="unknown">\end</span><i>align</i>*
+</span>
+
+</span>
+</span>
+</span>
+
+</span>
+</span>
+</div>
+<p>If X(t) is WSS,</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>μ</i><sub><i>Y</i></sub>(<i>t</i>) = <i>μ</i><sub><i>X</i></sub>⋅<span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>h</i>(<i>τ</i>)<i>d</i><i>τ</i>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <i>μ</i><sub><i>X</i></sub>⋅<i>H</i>(0)
+</span>
+
+</span>
+</span>
+</div>
+</li>
+<li><p class="first">Auto correlation:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>R</i><sub><i>Y</i></sub>(<i>τ</i>) = <i>E</i>[<i>Y</i>(<i>t</i> + <i>τ</i>)<i>Y</i>(<i>t</i>)] = <i>E</i>[<span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>h</i>(<i>τ</i><sub>1</sub>)<i>X</i>(<i>t</i> + <i>τ</i> − <i>τ</i><sub>1</sub>)<i>d</i><i>τ</i><sub>1</sub>⋅<span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>h</i>(<i>τ</i><sub>2</sub>)<i>X</i>(<i>t</i> − <i>τ</i><sub>2</sub>)<i>d</i><i>τ</i><sub>2</sub>]
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>h</i>(<i>τ</i><sub>1</sub>)<i>h</i>(<i>τ</i><sub>2</sub>)<i>E</i>[<i>X</i>(<i>t</i> + <i>τ</i> − <i>τ</i><sub>1</sub>)<i>X</i>(<i>t</i> − <i>τ</i><sub>2</sub>)]<i>d</i><i>τ</i><sub>1</sub><i>d</i><i>τ</i><sub>2</sub>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>h</i>(<i>τ</i><sub>1</sub>)<i>h</i>(<i>τ</i><sub>2</sub>)<i>R</i><sub><i>x</i></sub>(<i>t</i> + <i>τ</i> − <i>τ</i><sub>1</sub>, <i>t</i> − <i>τ</i><sub>2</sub>)<i>d</i><i>τ</i><sub>1</sub><i>d</i><i>τ</i><sub>2</sub>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<p>If WSS,</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>h</i>(<i>τ</i><sub>1</sub>)<i>h</i>(<i>τ</i><sub>2</sub>)<i>R</i><sub><i>x</i></sub>(<i>τ</i> − <i>τ</i><sub>1</sub> + <i>τ</i><sub>2</sub>)<i>d</i><i>τ</i><sub>1</sub><i>d</i><i>τ</i><sub>2</sub>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>h</i>(<i>τ</i><sub>1</sub>)[<span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>h</i>(<i>τ</i><sub>2</sub>)<i>R</i><sub><i>x</i></sub>(<i>τ</i> − <i>τ</i><sub>1</sub> + <i>τ</i><sub>2</sub>)<i>d</i><i>τ</i><sub>2</sub><i>d</i>]<i>τ</i><sub>1</sub>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>h</i>(<i>τ</i><sub>1</sub>)[<span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>h</i>( − ( − <i>τ</i><sub>2</sub>))<i>R</i><sub><i>x</i></sub>(<i>τ</i> − <i>τ</i><sub>1</sub> − ( − <i>τ</i><sub>2</sub>))<i>d</i><i>τ</i><sub>2</sub>]<i>d</i><i>τ</i><sub>1</sub>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+</li>
+</ul>
+<p>Note that</p>
+<div class="formula">
+<i>h</i>( − <i>t</i>)*<i>x</i>(<i>t</i>) = <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>h</i>( − <i>τ</i>)<i>x</i>(<i>t</i> − <i>τ</i>)<i>d</i><i>τ</i>
+</div>
+<p>So</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+ = <i>h</i>( − <i>τ</i>)*<span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>h</i>(<i>τ</i><sub>1</sub>)<i>R</i><sub><i>x</i></sub>(<i>τ</i> − <i>τ</i><sub>1</sub>)<i>d</i><i>τ</i><sub>1</sub>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <i>h</i>( − <i>τ</i>)*<i>h</i>(<i>τ</i>)*<i>R</i><sub><i>x</i></sub>(<i>τ</i>)
+</span>
+
+</span>
+</span>
+</div>
+</div>
+</div>
+<div class="section" id="power-spectral-density">
+<h3>Power Spectral Density</h3>
+<p>Spectrum for random process</p>
+<p>The Fourier transform of the auto correlation function:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>S</i><sub><i>X</i></sub>(<i>f</i>) = <span class="limits"><sup class="limit">∞</sup><span class="limit"><span class="bigoperator integral">∫</span></span><sub class="limit"> − ∞</sub></span><i>R</i><sub><i>X</i></sub>(<i>τ</i>)<i>e</i><sup> − <i>j</i>2<i>π</i><i>f</i><i>τ</i></sup><i>d</i><i>τ</i>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+<i>R</i><sub><i>X</i></sub>(<i>τ</i>) = <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="scripts"><sup class="script">∞</sup><sub class="script"> − ∞</sub></span><i>S</i><sub><i>X</i></sub>(<i>f</i>)<i>e</i><sup><i>j</i>2<i>π</i><i>f</i><i>τ</i></sup><i>df</i>
+</span>
+
+</span>
+</span>
+</div>
+<div class="section" id="properties">
+<h4>Properties</h4>
+<ul class="simple">
+<li><span class="formula"><i>S</i><sub><i>X</i></sub>(0) = <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="scripts"><sup class="script">∞</sup><sub class="script"> − ∞</sub></span><i>R</i><sub><i>X</i></sub>(<i>τ</i>)<i>d</i><i>τ</i></span></li>
+<li><span class="formula"><i>R</i><sub><i>X</i></sub>(0) = <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="scripts"><sup class="script">∞</sup><sub class="script"> − ∞</sub></span><i>S</i><sub><i>X</i></sub>(<i>f</i>)<i>df</i></span> (average power)</li>
+<li><span class="formula"><i>S</i><sub><i>X</i></sub>(<i>f</i>)</span> is real valued, non negative.</li>
+<li><span class="formula"><i>S</i><sub><i>X</i></sub>(<i>f</i>) = <i>S</i><sub><i>X</i></sub>( − <i>f</i>)</span></li>
+</ul>
+<p>Example:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>x</i>(<i>t</i>) = <i>Acos</i>(2<i>π</i><i>f</i><sub><i>ct</i></sub> + <i>θ</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+<i>R</i><sub><i>X</i></sub>(<i>τ</i>) = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>A</i><sup>2</sup></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><i>cos</i>(2<i>π</i><i>f</i><sub><i>c</i></sub><i>τ</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+<i>S</i><sub><i>X</i></sub>(<i>f</i>) = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>A</i><sup>2</sup></span><span class="ignored">)/(</span><span class="denominator">4</span><span class="ignored">)</span></span>[<i>δ</i>(<i>f</i> − <i>f</i><sub><i>c</i></sub>) + <i>δ</i>(<i>f</i> + <i>f</i><sub><i>c</i></sub>)]
+</span>
+
+</span>
+</span>
+</div>
+<p><span class="formula"><i>θ</i></span> has no influence.</p>
+<p>If WSS,</p>
+<div class="formula">
+<i>S</i><sub><i>X</i></sub>(<i>f</i>) = <i>S</i><sub><i>X</i></sub>(<i>f</i>)<i>H</i>(<i>f</i>)<i>H</i><sup>*</sup>(<i>f</i>) = <i>S</i><sub><i>X</i></sub>(<i>f</i>)<span class="unknown">\abs</span><i>H</i>(<i>f</i>)<sup>2</sup>
+</div>
+</div>
+</div>
+<div class="section" id="model-of-noise">
+<h3>Model of noise</h3>
+<p>Additive white Gaussian noise: AWGN</p>
+<p>White: everywhere: the power spectrum density
+<span class="formula"><i>S</i><sub><i>n</i></sub>(<i>f</i>) = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>N</i><sub>0</sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span></span>, which is an constant.</p>
+<p>Then the auto correlation: <span class="formula"><i>R</i><sub><i>n</i></sub>(<i>τ</i>) = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>N</i><sub>0</sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><i>δ</i>(<i>τ</i>)</span>.
+Uncorrelated at everywhere.</p>
+<p>Gaussian: normal distribution</p>
+<p>Example:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>Y</i>(<i>t</i>) = <i>Acos</i>(2<i>π</i><i>f</i><sub><i>ct</i></sub> + <i>θ</i>) + <i>n</i>(<i>t</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<p>Then</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>R</i><sub><i>Y</i></sub>(<i>t</i>) = <i>E</i>[(<i>x</i>(<i>t</i> + <i>τ</i>) + <i>n</i>(<i>t</i> + <i>τ</i>))(<i>x</i>(<i>t</i>) + <i>n</i>(<i>t</i>))]
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <i>R</i><sub><i>X</i></sub>(<i>τ</i>) + <i>R</i><sub><i>n</i></sub>(<i>τ</i>) + ...
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <i>R</i><sub><i>X</i></sub>(<i>τ</i>) + <i>R</i><sub><i>n</i></sub>(<i>τ</i>)
+</span>
+
+</span>
+</span>
+</div>
+</div>
+<div class="section" id="snr-analysis-for-dsb-sc">
+<h3>SNR analysis for DSB-SC</h3>
+<div class="formula">
+<i>s</i>(<i>t</i>) →  + <i>n</i>(<i>t</i>) → <i>BPF</i> → <i>carrier</i>(<i>sync</i>) → <i>LPF</i> → 
+</div>
+<p>then</p>
+<div class="formula">
+<i>v</i><sub>1</sub>(<i>t</i>) = [<i>s</i>(<i>t</i>) + <i>n</i>(<i>t</i>)]*<i>h</i><sub><i>BPF</i></sub>(<i>t</i>)
+</div>
+<p>BPF with 2B (the bandwidth of <span class="formula"><i>s</i>(<i>t</i>)</span> is B).</p>
+<p>Note that noise is constant on the frequency spectrum.</p>
+<p>So</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>v</i><sub>1</sub>(<i>t</i>) = <i>s</i>(<i>t</i>)*<i>h</i><sub><i>BPF</i></sub>(<i>t</i>) + <i>n</i>(<i>t</i>)*<i>h</i><sub><i>BPF</i></sub>(<i>t</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <i>s</i>(<i>t</i>) + <i>n</i>’(<i>t</i>)
+</span>
+
+</span>
+</span>
+</div>
+<p>Then</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>v</i><sub>2</sub>(<i>t</i>) = <i>v</i><sub>1</sub>(<i>t</i>)<i>cos</i>(2<i>π</i><i>f</i><sub><i>ct</i></sub> + <i>θ</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>A</i><sub><i>c</i></sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><i>m</i>(<i>t</i>) + <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>A</i><sub><i>c</i></sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><i>m</i>(<i>t</i>)<i>cos</i>(4<i>π</i><i>f</i><sub><i>ct</i></sub> + 2<i>θ</i>) + <i>n</i>’(<i>t</i>)<i>cos</i>(2<i>π</i><i>f</i><sub><i>ct</i></sub> + <i>θ</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<p>after LPF:</p>
+<div class="formula">
+<i>v</i><sub>3</sub>(<i>t</i>) = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>A</i><sub><i>c</i></sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><i>m</i>(<i>t</i>) + <i>n̂</i>(<i>t</i>)
+</div>
+<p>SNR:
+:math:<a href="#system-message-1"><span class="problematic" id="problematic-1">`</span></a>frac{frac{A_c^2}4abs{m(t)}^2}{2Bfrac{N_0}4} =  frac{A_c^2abs{m(t)}^2}{2BN_0} `</p>
+<div class="system-message" id="system-message-1">
+<p class="system-message-title">System Message: WARNING/2 (<tt class="docutils">&lt;stdin&gt;</tt>, line 296); <em><a href="#problematic-1">backlink</a></em></p>
+Inline interpreted text or phrase reference start-string without end-string.</div>
+</div>
+</div>
+<div class="section" id="section-1">
+<span id="target-1"></span><h2>11.10</h2>
+<p>Transition from analog to digital</p>
+<ol class="arabic simple">
+<li>sampling</li>
+<li>PAM: pulse amplitude modulation</li>
+<li>Quantization + Coding (3350) -&gt; PCM</li>
+</ol>
+<div class="section" id="sampling">
+<h3>Sampling</h3>
+<p>continuous <span class="formula"><i>m</i>(<i>t</i>)</span>, snapshot by a constant interval of <span class="formula"><i>t</i></span>.
+can be expressed:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>g</i>(<i>t</i>) = <i>m</i>(<i>t</i>)⋅<i>S</i><sub><i>Ts</i></sub>(<i>t</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><span class="limit"><span class="bigoperator">∑</span></span></span><i>m</i>(<i>nT</i><sub><i>s</i></sub>)<i>δ</i>(<i>t</i> − <i>nT</i><sub><i>s</i></sub>)
+</span>
+
+</span>
+</span>
+</div>
+<p>where</p>
+<div class="formula">
+<i>S</i><sub><i>T</i><sub><i>s</i></sub></sub> = <span class="limits"><sup class="limit">∞</sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>n</i> =  − ∞</sub></span><i>δ</i>(<i>t</i> − <i>nT</i><sub><i>s</i></sub>)
+</div>
+<p>Spectrum</p>
+<p>Multiplication in time, convolution in freq.</p>
+<p>Spectrum of <span class="formula"><i>S</i><sub><i>T</i><sub><i>s</i></sub></sub></span> :</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>S</i><sub><i>T</i><sub><i>s</i></sub></sub> = <span class="limits"><span class="limit"><span class="bigoperator">∑</span></span></span><i>c</i><sub><i>n</i></sub><i>e</i><sup><i>j</i>2<i>π</i><i>nt</i></sup>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+<i>c</i><sub><i>n</i></sub> = <span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)</span></span><span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>δ</i><sub><i>Ts</i></sub>(<i>t</i>)<i>e</i><sup> − <span class="fraction"><span class="ignored">(</span><span class="numerator">2<i>π</i></span><span class="ignored">)/(</span><span class="denominator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)</span></span><i>nt</i></sup><i>t</i>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)</span></span><span class="limits"><sup class="limit"><span class="fraction"><span class="ignored">(</span><span class="numerator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span></sup><span class="limit"><span class="bigoperator integral">∫</span></span><sub class="limit"> − <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span></sub></span><i>δ</i>(<i>t</i>)⋅1<i>dt</i><span class="text"> (when t = 0)</span>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)</span></span>
+</span>
+
+</span>
+</span>
+</div>
+<p>so</p>
+<div class="formula">
+<i>F</i>(<i>S</i><sub><i>T</i><sub><i>S</i></sub></sub>(<i>t</i>)) = <span class="limits"><span class="limit"><span class="bigoperator">∑</span></span></span><span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)</span></span><i>δ</i>(<i>f</i> − <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>n</i></span><span class="ignored">)/(</span><span class="denominator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)</span></span>)
+</div>
+<p>Then</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>F</i>(<i>g</i>(<i>t</i>)) = <i>M</i>(<i>f</i>)*<span class="limits"><sup class="limit"> </sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>n</i></sub></span><span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)</span></span><i>δ</i>(<i>f</i> − <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>n</i></span><span class="ignored">)/(</span><span class="denominator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)</span></span>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)</span></span><span class="limits"><sup class="limit"> </sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>n</i></sub></span><i>M</i>(<i>f</i>)*<i>δ</i>(<i>f</i> − <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>n</i></span><span class="ignored">)/(</span><span class="denominator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)</span></span>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)</span></span><span class="limits"><sup class="limit"> </sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>n</i></sub></span><i>M</i>(<i>f</i> − <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>n</i></span><span class="ignored">)/(</span><span class="denominator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)</span></span>)
+</span>
+
+</span>
+</span>
+</div>
+<p>So the spectrum is periodic regions of the original spectrum
+<span class="formula"><i>M</i>(<i>f</i>)</span> with some modifier on each <span class="formula"><span class="fraction"><span class="ignored">(</span><span class="numerator"><i>n</i></span><span class="ignored">)/(</span><span class="denominator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)</span></span></span>.</p>
+<p>Here the minimum distance is: <span class="formula"><span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)</span></span> &gt; 2<i>W</i></span>.</p>
+<p>The recover of the message: LPF (<strong>reconstruction filter</strong>).</p>
+<div class="section" id="nyquist-rate">
+<h4>Nyquist rate</h4>
+<p>The <span class="formula"><i>f</i><sub><i>s</i></sub> = <span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)</span></span></span>: the sampling rate. The rate should
+guarantee that the spectrum has no overlap: <span class="formula"><i>f</i><sub><i>s</i></sub> ≥ 2<i>W</i></span></p>
+</div>
+<div class="section" id="the-whole-process">
+<h4>The whole process:</h4>
+<div class="formula">
+<i>m</i>(<i>t</i>) → <span class="text">anti-aliasing</span> → <span class="text">sampling</span> → <span class="text">reconstruction</span>
+</div>
+<p>Band-limited signal: go through LPF with bandwidth <span class="formula"><i>W</i></span>. which is
+called <strong>anti-aliasing filter</strong>.</p>
+<p>Then to the sampling. Next to the reconstruction filter.</p>
+</div>
+</div>
+<div class="section" id="pam-pulse-amplitude-modulation">
+<h3>PAM (Pulse Amplitude Modulation)</h3>
+<div class="formula">
+<i>g</i>(<i>t</i>) → <span class="text">Pulse shaping</span> → <i>s</i>(<i>t</i>)
+</div>
+<div class="section" id="pulse-shaping">
+<h4>Pulse shaping:</h4>
+<p>i.e, using rectangular on signal (<span class="formula"><i>h</i>(<i>t</i>)</span>): each pulse becomes a
+rectangle.</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>s</i>(<i>t</i>) = <i>g</i>(<i>t</i>)*<i>h</i>(<i>t</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><span class="limit"><span class="bigoperator">∑</span></span></span><i>m</i>(<i>nT</i><sub><i>s</i></sub>)<i>δ</i>(<i>t</i> − <i>nTs</i>)*<i>h</i>(<i>t</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><span class="limit"><span class="bigoperator">∑</span></span></span><i>m</i>(<i>nT</i><sub><i>s</i></sub>)<i>h</i>(<i>t</i> − <i>nT</i><sub><i>s</i></sub>)
+</span>
+
+</span>
+</span>
+</div>
+<p>The sending result is rectangular waves with different amplitude.</p>
+</div>
+</div>
+<div class="section" id="demodulation-receiver">
+<h3>demodulation: receiver</h3>
+<div class="formula">
+<i>s</i>(<i>t</i>) → <span class="text">LPF</span> → <span class="text">Equalizer</span> → <i>m̂</i>(<i>t</i>)
+</div>
+<p>The spectrum:</p>
+<div class="formula">
+<i>S</i>(<i>f</i>) = <i>G</i>(<i>f</i>)<i>H</i>(<i>f</i>)
+</div>
+<p>recall</p>
+<div class="formula">
+<i>G</i>(<i>f</i>) = <span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)</span></span><span class="limits"><span class="limit"><span class="bigoperator">∑</span></span></span><i>M</i>(<i>f</i> − <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>n</i></span><span class="ignored">)/(</span><span class="denominator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)</span></span>)
+</div>
+<p>and</p>
+<div class="formula">
+<i>H</i>(<i>f</i>) = <i>sinc</i>()
+</div>
+<p>with zero point <span class="formula"><span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator"><i>T</i></span><span class="ignored">)</span></span> &gt;  &gt; <span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)</span></span></span></p>
+<p>Clearly the original signal is distorted by <span class="formula"><i>H</i>(<i>f</i>)</span> which is
+brought by pulse shaping.</p>
+<p>Direct thought: divide the <span class="formula"><i>H</i>(<i>f</i>)</span> to recover.
+(<span class="formula"><span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator"><i>H</i>(<i>f</i>)</span><span class="ignored">)</span></span></span>)</p>
+<p>That part will make the system gives the constant response together with
+<span class="formula"><i>H</i>(<i>f</i>)</span>.</p>
+<div class="section" id="equalizer">
+<h4>Equalizer</h4>
+<p>Above.</p>
+</div>
+</div>
+<div class="section" id="other-modulation">
+<h3>Other modulation:</h3>
+<p>amplitude PAM;</p>
+<p>duration: pulse duration modulation: the average power is constant,
+noise resistance. similar to FM.</p>
+<p>pulse position: define an interval, location of each pulse in each
+interval to indicate the amplitude.</p>
+<p>Problem: transmitting time difference should be larger than the pulse to
+avoid the indistinguishable between different signals.</p>
+</div>
+<div class="section" id="time-division-multiplexing-tdm">
+<h3>Time Division Multiplexing (TDM)</h3>
+<p>Is FDM good? no since the spectrum of PAM is spreading across a wide
+range on the frequency domain.</p>
+<p>The time offset: <span class="formula"><i>t</i><sub><i>o</i></sub> = (<i>i</i> − 1)<span class="fraction"><span class="ignored">(</span><span class="numerator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)/(</span><span class="denominator"><i>n</i></span><span class="ignored">)</span></span></span> in which <span class="formula"><i>n</i></span> is
+the total number of signals, <span class="formula"><i>i</i></span> is the index of signals (starting
+from 1).</p>
+<p>Imagine a tuner switching with interval <span class="formula"><span class="fraction"><span class="ignored">(</span><span class="numerator"><i>T</i><sub><i>S</i></sub></span><span class="ignored">)/(</span><span class="denominator"><i>n</i></span><span class="ignored">)</span></span></span>.</p>
+<p>The ending part: each signal has a LPF together with Equalizer. For they
+are LTI: make the collection of the signals go through the equalizer
+first then LPF each other. If the LPF is in the collection part: there
+are overlap between different signals. The filtered signal has no
+meaning. The LPF is targeting signal with sampling interval <span class="formula"><i>T</i><sub><i>s</i></sub></span>.</p>
+</div>
+</div>
+<div class="section" id="pcm-pulse-coded-modulation">
+<h2>PCM (Pulse Coded Modulation)</h2>
+<p>In PAM the <span class="formula"><i>g</i>(<i>t</i>)</span> takes continuous values on discrete time.</p>
+<p>Introduce the Quantization to reduce the demodulation error, while
+brings the quantization error.</p>
+<p>Idea: approximate infinite number of analog values to finite number of
+values.</p>
+<div class="section" id="quantization">
+<h3>Quantization</h3>
+<p>The quantization process is accomplished by applying an step function to
+the message.</p>
+<p>step size:</p>
+<div class="formula">
+Δ = <span class="fraction"><span class="ignored">(</span><span class="numerator">2<i>max</i>{<span class="unknown">\abs</span><i>m</i>(<i>t</i>)}</span><span class="ignored">)/(</span><span class="denominator"><i>L</i></span><span class="ignored">)</span></span>
+</div>
+<p>where <span class="formula"><i>L</i></span> is the number of levels. The error will be smaller than
+the half of the step size:</p>
+<div class="formula">
+<span class="unknown">\abs</span><i>e</i>(<i>n</i>) ≤ <span class="fraction"><span class="ignored">(</span><span class="numerator">Δ</span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span> = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>max</i>{<span class="unknown">\abs</span><i>m</i>(<i>t</i>)}</span><span class="ignored">)/(</span><span class="denominator"><i>L</i></span><span class="ignored">)</span></span>
+</div>
+<p>Advantage: robust to noises</p>
+</div>
+<div class="section" id="encoding">
+<h3>Encoding</h3>
+<p>Finite possibilities: encode using bits.</p>
+<p>The number of bits: <span class="formula"><i>n</i> = <i>celling</i>(<i>log</i><sub>2</sub>(<i>L</i>))</span> .</p>
+<div class="section" id="methods">
+<h4>Methods</h4>
+<ol class="arabic">
+<li><p class="first">Unipolar NRZ (non-return-to-zero)</p>
+<p>range from 0 to 1, with no return gap between binary values.</p>
+<p>Drawback: (with bipolar NRZ): mean &gt; 0, has nonzero DC term.</p>
+</li>
+<li><p class="first">Bipolar NRZ</p>
+<p>range from -1 to 1, -1 denotes 0, and no return to 0.</p>
+<p>Mean = 0</p>
+</li>
+<li><p class="first">Unipolar RZ</p>
+<p>Easier for synchronization than NRZ. Larger bandwidth is required.</p>
+</li>
+</ol>
+</div>
+</div>
+<div class="section" id="overall-process">
+<h3>Overall process</h3>
+<p>Sender</p>
+<div class="formula">
+<i>m</i>(<i>t</i>) → <span class="text">LPF</span> → <span class="text">Sampling</span> → <span class="text">Quantization</span> → <span class="text">Encoding</span> → <span class="text">PCM waveform</span>
+</div>
+<p>Receiver</p>
+<div class="formula">
+ → <span class="text">Decoder</span> → <span class="text">Reconstruction LPF</span> → <i>m̂</i>(<i>t</i>)
+</div>
+<p>Bit interval : <span class="formula"><span class="fraction"><span class="ignored">(</span><span class="numerator"><i>T</i><sub><i>s</i></sub></span><span class="ignored">)/(</span><span class="denominator"><i>R</i></span><span class="ignored">)</span></span> = <i>T</i></span>, the bandwidth is approximately
+<span class="formula"><span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator"><i>T</i></span><span class="ignored">)</span></span></span>.</p>
+<p>Data rate: <span class="formula"><span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator"><i>T</i></span><span class="ignored">)</span></span></span> bits/sec.</p>
+<p><strong>Example:</strong></p>
+<p>bandwidth of <span class="formula"><i>m</i>(<i>t</i>)</span> is 3.1kHz.</p>
+<p>sampling frequency <span class="formula"><i>f</i><sub><i>s</i></sub> = 8<i>kHz</i></span>, which gives
+<span class="formula"><i>T</i><sub><i>s</i></sub> = 1 ⁄ 8<i>k</i> = 125<i>μ</i><i>s</i></span>.</p>
+<p>The bit number <span class="formula"><i>R</i> = 8</span>, and additional 1 bit is used for
+synchronization, the TDM has 24 channels,</p>
+<p>then for one sampling interval there are 24 * 8 + 1 = 192 bits
+transmitted.</p>
+<p>bit interval: <span class="formula"><i>T</i> = <span class="fraction"><span class="ignored">(</span><span class="numerator">125<i>μ</i><i>s</i></span><span class="ignored">)/(</span><span class="denominator">193</span><span class="ignored">)</span></span> = 0.647<i>μ</i><i>s</i></span></p>
+<p>data rate: <span class="formula"><i>rate</i> = 1.544<i>Mbps</i></span></p>
+</div>
+<div class="section" id="baseband-digital-transmission">
+<h3>Baseband digital transmission</h3>
+<div class="section" id="m-arg-pam">
+<h4>M-arg PAM</h4>
+<p>source: digital sequence</p>
+<ul>
+<li><p class="first">Binary PAM: each bit {1, 0} maps to <span class="formula">±<i>g</i>(<i>t</i>)</span>, in which
+<span class="formula"><i>g</i>(<i>t</i>)</span> is pulse shaping wave.</p>
+<p>amplitude levels: <span class="formula"><i>M</i> = 2</span>.</p>
+</li>
+<li><p class="first">M-arg PAM: <span class="formula"><i>M</i> = <i>n</i></span>, <span class="formula"><i>log</i><sub>2</sub><i>n</i></span> bits in unit, in total there
+are n levels. The different amplitude levels are named <strong>symbols</strong>.</p>
+<p>Symbol rate: <span class="formula"><span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator"><i>T</i></span><span class="ignored">)</span></span></span>, data rate <span class="formula"><span class="fraction"><span class="ignored">(</span><span class="numerator"><i>log</i><sub>2</sub><i>M</i></span><span class="ignored">)/(</span><span class="denominator"><i>T</i></span><span class="ignored">)</span></span></span>.</p>
+</li>
+</ul>
+<p>Then map the bit sequence to symbol sequence and transmit them through
+the channel.</p>
+<p>M-arg PAM signal: <span class="formula"><i>s</i>(<i>t</i>) = <span class="limits"><span class="limit"><span class="bigoperator">∑</span></span></span><sub><i>k</i></sub><i>a</i><sub><i>kg</i></sub>(<i>t</i> − <i>kT</i>)</span>, in which
+<span class="formula"><i>a</i><sub><i>k</i></sub> ∈ <i>ALset</i></span>, <span class="formula"><i>g</i>(<i>t</i>)</span> is pulse shaping function.</p>
+</div>
+<div class="section" id="constraints-on-m">
+<h4>Constraints on M</h4>
+<p>By power constraint and noise.</p>
+<p>Challenges:</p>
+<ul class="simple">
+<li>noise corruption: constraints, bottleneck</li>
+<li>channel: decreasing of T</li>
+</ul>
+<p>Consider the channel with AWGN noise:</p>
+<div class="formula">
+<i>s</i>(<i>t</i>) →  + <span class="text">AWGN </span><i>w</i>(<i>t</i>) → <i>s</i>(<i>t</i>) + <i>w</i>(<i>t</i>)
+</div>
+<p>Find a matched filter <span class="formula"><i>h</i>(<i>t</i>)</span> such that the SNR be minimal.</p>
+<p>The SNR:</p>
+<div class="formula">
+<i>SNR</i> = <span class="fraction"><span class="ignored">(</span><span class="numerator"><span class="text">power of signal</span></span><span class="ignored">)/(</span><span class="denominator"><span class="text">power of noise</span></span><span class="ignored">)</span></span> = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>E</i>[{<i>s</i>(<i>t</i>)*<i>h</i>(<i>t</i>)}<sup>2</sup>]</span><span class="ignored">)/(</span><span class="denominator"><i>E</i>[{<i>w</i>(<i>t</i>)*<i>h</i>(<i>t</i>)}<sup>2</sup>]</span><span class="ignored">)</span></span>
+</div>
+<p>Replace <span class="formula"><i>s</i>(<i>t</i>)</span> with the formula above:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>P</i><sub><i>s</i></sub> = <i>E</i>[<span class="limits"><sup class="limit"> </sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>k</i></sub></span><span class="unknown">\abs</span><i>a</i><sub><i>kg</i></sub>(<i>t</i>)*<i>δ</i>(<i>t</i> − <i>kT</i>)*<i>h</i>(<i>t</i>)<span class="scripts"><sup class="script">2</sup><sub class="script"><i>t</i> = <i>kT</i></sub></span>]
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><sup class="limit"> </sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>kE</i></sub></span>[<span class="unknown">\abs</span><i>a</i><sub><i>k</i></sub><sup>2</sup>](<i>g</i>(<i>t</i>)*<i>δ</i>(<i>t</i> − <i>kT</i>)*<i>h</i>(<i>t</i>))|<span class="scripts"><sup class="script">2</sup><sub class="script"><i>t</i> = <i>kT</i></sub></span>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><sup class="limit"> </sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>kE</i></sub></span>[<span class="unknown">\abs</span><i>a</i><sub><i>k</i></sub><sup>2</sup>](<span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>G</i>(<i>f</i>)<i>H</i>(<i>f</i>)<i>e</i><sup><i>j</i>2<i>π</i><i>fkT</i></sup><i>df</i>)<sup>2</sup>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<p>Consider the power of noise:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>P</i><sub><i>n</i></sub> = <span class="limits"><sup class="limit"> </sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>kE</i></sub></span>[<span class="unknown">\abs</span><i>w</i>(<i>t</i>)*<i>h</i>(<i>t</i>)<sup>2</sup>]
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><sup class="limit"> </sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>kE</i></sub></span>[<span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>w</i>(<i>τ</i><sub>1</sub> − <i>t</i>)<i>h</i>(<i>τ</i><sub>1</sub>)<i>d</i><i>τ</i><sub>1</sub><span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>w</i>(<i>τ</i><sub>2</sub> − <i>t</i>)<i>h</i>(<i>τ</i><sub>2</sub>)<i>d</i><i>τ</i><sub>2</sub>]
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><sup class="limit"> </sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>k</i></sub></span><span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>h</i>(<i>τ</i><sub>1</sub>)<i>h</i>(<i>τ</i><sub>2</sub>)<i>E</i>[<i>w</i>(<i>τ</i><sub>2</sub> − <i>τ</i><sub>1</sub>)]<i>d</i><i>τ</i><sub>1</sub><i>d</i><i>τ</i><sub>2</sub>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><sup class="limit"> </sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>k</i></sub></span><span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>h</i>(<i>τ</i><sub>1</sub>)<i>h</i>(<i>τ</i>2)<span class="fraction"><span class="ignored">(</span><span class="numerator"><i>N</i><sub>0</sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><i>δ</i>(<i>τ</i><sub>2</sub> − <i>τ</i><sub>1</sub>)<i>d</i><i>τ</i><sub>1</sub><i>d</i><i>τ</i><sub>2</sub>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><sup class="limit"> </sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>k</i></sub></span><span class="fraction"><span class="ignored">(</span><span class="numerator"><i>N</i><sub>0</sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="unknown">\abs</span><i>h</i>(<i>t</i>)<sup>2</sup><i>dt</i>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<div class="formula">
+ = <span class="limits"><sup class="limit"> </sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>k</i></sub></span><span class="fraction"><span class="ignored">(</span><span class="numerator"><i>N</i><sub>0</sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="unknown">\abs</span><i>H</i>(<i>f</i>)<sup>2</sup><i>df</i>
+</div>
+<p>Then the ratio is:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>SNR</i> = <span class="fraction"><span class="ignored">(</span><span class="numerator"><span class="limits"><sup class="limit"> </sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>kE</i></sub></span>[<span class="unknown">\abs</span><i>a</i><sub><i>k</i></sub><sup>2</sup>](<span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>G</i>(<i>f</i>)<i>H</i>(<i>f</i>)<i>e</i><sup><i>j</i>2<i>π</i><i>fkT</i></sup><i>df</i>)<sup>2</sup></span><span class="ignored">)/(</span><span class="denominator"><span class="limits"><sup class="limit"> </sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>k</i></sub></span><span class="fraction"><span class="ignored">(</span><span class="numerator"><i>N</i><sub>0</sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="unknown">\abs</span><i>H</i>(<i>f</i>)<sup>2</sup><i>df</i></span><span class="ignored">)</span></span>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<p>By Cauchy-Schwartz inequality
+<span class="formula"><span class="unknown">\abs</span><i>a</i><sup><i>Tb</i></sup><sup>2</sup> ≤ <span class="unknown">\abs</span><i>a</i><sup>2</sup><span class="unknown">\abs</span><i>b</i><sup>2</sup></span></p>
+<div class="formula">
+(<span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>G</i>(<i>f</i>)<i>H</i>(<i>f</i>)<i>e</i><sup><i>j</i>2<i>π</i><i>fkT</i></sup><i>df</i>)<sup>2</sup> ≤ <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="unknown">\abs</span><i>G</i>(<i>f</i>)<i>e</i><sup><i>j</i>2<i>π</i><i>fkT</i></sup><sup>2</sup><i>df</i>⋅<span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="unknown">\abs</span><i>H</i>(<i>f</i>)<sup>2</sup><i>df</i>
+</div>
+<p>So for SNR:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>SNR</i> ≤ <span class="limits"><sup class="limit"> </sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>k</i></sub></span><span class="fraction"><span class="ignored">(</span><span class="numerator"><i>E</i>[<span class="unknown">\abs</span><i>a</i><sub><i>k</i></sub><sup>2</sup>]</span><span class="ignored">)/(</span><span class="denominator"><span class="fraction"><span class="ignored">(</span><span class="numerator"><i>N</i><sub>0</sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span></span><span class="ignored">)</span></span><span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="unknown">\abs</span><i>G</i>(<i>f</i>)<i>e</i><sup><i>j</i>2<i>π</i><i>fkT</i></sup><sup>2</sup><i>df</i>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<div class="formula">
+ = <span class="limits"><sup class="limit"> </sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>k</i></sub></span><span class="fraction"><span class="ignored">(</span><span class="numerator"><i>E</i>[<span class="unknown">\abs</span><i>a</i><sub><i>k</i></sub><sup>2</sup>]</span><span class="ignored">)/(</span><span class="denominator"><span class="fraction"><span class="ignored">(</span><span class="numerator"><i>N</i><sub>0</sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span></span><span class="ignored">)</span></span><span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="unknown">\abs</span><i>G</i>(<i>f</i>)<sup>2</sup><i>df</i>
+</div>
+<p>Then</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>H</i>(<i>f</i>) = <i>G</i><sup>*</sup>(<i>f</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<div class="formula">
+<i>h</i>(<i>t</i>) = <i>g</i>( − <i>t</i>)
+</div>
+<p>when taking the equality. Or</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>H</i>(<i>f</i>) = <i>G</i><sup>*</sup>(<i>f</i>)<i>e</i><sup><i>j</i>2<i>π</i><i>fT</i></sup>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<div class="formula">
+<i>h</i>(<i>t</i>) = <i>g</i>(<i>T</i> − <i>t</i>)
+</div>
+<p>When you want to sample at <span class="formula">(<i>k</i> + 1)<i>T</i></span> instead of <span class="formula"><i>kT</i></span>.</p>
+<p>So the result after the matched filter will be:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>y</i> = <i>a</i><sub>0</sub><span class="limits"><sup class="limit">∞</sup><span class="limit"><span class="bigoperator integral">∫</span></span><sub class="limit"> − ∞</sub></span><span class="unknown">\abs</span><i>g</i>(<i>t</i>)<sup>2</sup><i>dt</i> + <i>w</i>(<i>t</i>)*<i>g</i>(<i>T</i> − <i>t</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+ = <i>a</i><sub>0</sub><span class="limits"><sup class="limit"><i>T</i></sup><span class="limit"><span class="bigoperator integral">∫</span></span><sub class="limit">0</sub></span><span class="unknown">\abs</span><i>g</i>(<i>t</i>)<sup>2</sup><i>dt</i> + <i>w</i>(<i>t</i>)*<i>g</i>(<i>T</i> − <i>t</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<p>Which is equivalent to the correlation receiver:</p>
+<div class="formula">
+<i>r</i>(<i>t</i>) → ×<i>g</i>(<i>t</i>) → <span class="limits"><sup class="limit"><i>T</i></sup><span class="limit"><span class="bigoperator integral">∫</span></span><sub class="limit">0</sub></span>(.)<i>dt</i> → <i>y</i>
+</div>
+</div>
+<div class="section" id="error-analysis">
+<h4>Error analysis</h4>
+<p>Consider 2-ary PAM, with sampling interval <span class="formula"><i>T</i></span> and AWGN noise
+whose power spectrum density is <span class="formula"><span class="fraction"><span class="ignored">(</span><span class="numerator"><i>N</i><sub>0</sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span></span>.</p>
+<p>The overall process:</p>
+<div class="formula">
+<i>s</i>(<i>t</i>) →  + <i>w</i>(<i>t</i>) → <i>r</i>(<i>t</i>) → <span class="text">matched filter</span> → <span class="text">sample at </span><i>t</i> = <i>t</i><sub><i>b</i></sub> → <span class="text">decision device</span> → <i>m̂</i>(<i>t</i>)
+</div>
+<p>The received signal:</p>
+<div class="formula">
+<i>r</i>(<i>t</i>) = <span class="limits"><sub class="limit"><i>kg</i></sub><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>ka</i></sub></span>(<i>t</i>) + <i>w</i>(<i>t</i>)
+</div>
+<p>The matched filter output:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>y</i>(<i>t</i>) = <span class="limits"><sub class="limit"><i>kg</i></sub><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>ka</i></sub></span>(<i>t</i>)*<i>h</i>(<i>t</i>) + <i>w</i>(<i>t</i>)*<i>h</i>(<i>t</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><sub class="limit"><i>k</i></sub><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>ka</i></sub></span><span class="limits"><sup class="limit"><i>Tg</i></sup><span class="limit"><span class="bigoperator integral">∫</span></span><sub class="limit">0</sub></span>(<i>t</i>)<sup>2</sup><i>dt</i> + <i>w</i>(<i>t</i>)*<i>g</i>(<i>T</i> − <i>t</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><sub class="limit"><i>kA</i></sub><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>ka</i></sub></span><sup>2</sup><i>T</i> + <i>w</i>(<i>t</i>)*<i>g</i>(<i>T</i> − <i>t</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<p>The mean of the output at <span class="formula"><i>T</i></span> for <span class="formula"><i>y</i><sub>0</sub></span>:</p>
+<div class="formula">
+<i>E</i>[<i>y</i><sub>0</sub>] = <i>a</i><sub>0</sub><i>A</i><sup>2</sup><i>T</i> + 0 = <i>a</i><sub>0</sub><i>E</i>
+</div>
+<p>The variance:</p>
+<div class="formula">
+<i>E</i>(<i>y</i><span class="scripts"><sup class="script">2</sup><sub class="script">0</sub></span>) = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>N</i><sub>0</sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><i>E</i>
+</div>
+<p>Example: on-off transition of PCM, <span class="formula"><i>a</i><sub><i>k</i></sub> ∈ {0, 1}</span>:</p>
+<p>case 1 (<span class="formula"><i>a</i><sub><i>k</i></sub> = 1</span>):</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>μ</i> = <i>E</i>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<div class="formula">
+<i>σ</i><sup>2</sup> = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>N</i><sub>0</sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><i>E</i>
+</div>
+<p>case 2 (<span class="formula"><i>a</i><sub><i>k</i></sub> = 0</span>):</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>μ</i> = 0
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<div class="formula">
+<i>σ</i><sup>2</sup> = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>N</i><sub>0</sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><i>E</i>
+</div>
+<p>The complementary error function:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>erfc</i>(<i>u</i>) = <span class="fraction"><span class="ignored">(</span><span class="numerator">2</span><span class="ignored">)/(</span><span class="denominator"><span class="sqrt"><span class="radical">√</span><span class="ignored">(</span><span class="root"><i>π</i></span><span class="ignored">)</span></span></span><span class="ignored">)</span></span><span class="limits"><sup class="limit">∞</sup><span class="limit"><span class="bigoperator integral">∫</span></span><sub class="limit"><i>u</i></sub></span><i>e</i><sup> − <i>τ</i><sup>2</sup></sup><i>d</i><i>τ</i>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<p>Q-function:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>Q</i>(<i>u</i>) = <span class="fraction"><span class="ignored">(</span><span class="numerator">12</span><span class="ignored">)/(</span><span class="denominator"><i>erfc</i></span><span class="ignored">)</span></span>(<span class="fraction"><span class="ignored">(</span><span class="numerator"><i>u</i></span><span class="ignored">)/(</span><span class="denominator"><span class="sqrt"><span class="radical">√</span><span class="ignored">(</span><span class="root">2</span><span class="ignored">)</span></span></span><span class="ignored">)</span></span>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<p>The error probability of edge:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>Q</i>(<span class="fraction"><span class="ignored">(</span><span class="numerator"><i>μ</i></span><span class="ignored">)/(</span><span class="denominator"><i>σ</i></span><span class="ignored">)</span></span>) = <span class="fraction"><span class="ignored">(</span><span class="numerator">12</span><span class="ignored">)/(</span><span class="denominator"><i>erfc</i></span><span class="ignored">)</span></span>(<span class="fraction"><span class="ignored">(</span><span class="numerator"><i>μ</i></span><span class="ignored">)/(</span><span class="denominator"><span class="sqrt"><span class="radical">√</span><span class="ignored">(</span><span class="root">2</span><span class="ignored">)</span></span><i>σ</i></span><span class="ignored">)</span></span>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<p>In this example:</p>
+<div class="formula">
+<i>e</i> = <span class="fraction"><span class="ignored">(</span><span class="numerator">12</span><span class="ignored">)/(</span><span class="denominator"><i>Q</i></span><span class="ignored">)</span></span>(<span class="fraction"><span class="ignored">(</span><span class="numerator"><i>μ</i><sub>0</sub></span><span class="ignored">)/(</span><span class="denominator"><i>σ</i></span><span class="ignored">)</span></span>) + <span class="fraction"><span class="ignored">(</span><span class="numerator">12</span><span class="ignored">)/(</span><span class="denominator"><i>Q</i></span><span class="ignored">)</span></span>(<span class="fraction"><span class="ignored">(</span><span class="numerator"><i>μ</i><sub>1</sub></span><span class="ignored">)/(</span><span class="denominator"><i>σ</i></span><span class="ignored">)</span></span>)
+</div>
+<p>if the probability of <span class="formula"><i>a</i><sub>0</sub></span> and <span class="formula"><i>a</i><sub>1</sub></span> are equal and
+<span class="formula"> = <span class="fraction"><span class="ignored">(</span><span class="numerator">12</span><span class="ignored">)/(</span><span class="denominator"></span><span class="ignored">)</span></span></span>.</p>
+<p>For general cases: the probability of <span class="formula"><i>a</i><sub>0</sub></span> is <span class="formula"><i>p</i><sub>0</sub></span>,
+<span class="formula"><i>a</i><sub>1</sub></span> is <span class="formula"><i>p</i><sub>1</sub></span>: the decision boundary <span class="formula"><i>λ</i></span> should
+satisfy below condition:</p>
+<div class="formula">
+<span class="fraction"><span class="ignored">(</span><span class="numerator"><i>f</i><sub><i>Y</i></sub>(<i>λ</i>|1)</span><span class="ignored">)/(</span><span class="denominator"><i>f</i><sub><i>Y</i></sub>(<i>λ</i>|0)</span><span class="ignored">)</span></span> = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>p</i><sub>0</sub></span><span class="ignored">)/(</span><span class="denominator"><i>p</i><sub>1</sub></span><span class="ignored">)</span></span>
+</div>
+<p>The error probability should also be adjusted:</p>
+<div class="formula">
+<i>e</i> = <i>p</i><sub>0</sub><i>Q</i>(<span class="fraction"><span class="ignored">(</span><span class="numerator"><i>μ</i><sub>0</sub></span><span class="ignored">)/(</span><span class="denominator"><i>σ</i></span><span class="ignored">)</span></span>) + <i>p</i><sub>1</sub><i>Q</i>(<span class="fraction"><span class="ignored">(</span><span class="numerator"><i>μ</i><sub>1</sub></span><span class="ignored">)/(</span><span class="denominator"><i>σ</i></span><span class="ignored">)</span></span>)
+</div>
+<p>Drawings will be more intuitive.</p>
+<p>Note that the conclusion also applies to the PCM transmission: the
+matched filer has amplitude <span class="formula"><span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator"><i>T</i><sub><i>b</i></sub></span><span class="ignored">)</span></span></span>. Thus the
+<span class="formula"><i>σ</i> = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>N</i><sub>0</sub></span><span class="ignored">)/(</span><span class="denominator">2<i>T</i><sub><i>b</i></sub></span><span class="ignored">)</span></span></span></p>
+</div>
+</div>
+<div class="section" id="inter-symbol-interference">
+<h3>Inter symbol interference</h3>
+<p>Key distortions:</p>
+<ul class="simple">
+<li>dispersive channel</li>
+<li>bandlimited signal</li>
+</ul>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>y</i>(<i>t</i>) = <span class="limits"><sub class="limit"><i>kg</i></sub><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>ka</i></sub></span>(<i>t</i>)*<i>δ</i>(<i>t</i> − <i>kT</i>)*<i>h</i>(<i>t</i>)*<i>c</i>(<i>t</i>) + <i>v</i>(<i>t</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<p>In which <span class="formula"><i>v</i>(<i>t</i>) = <i>w</i>(<i>t</i>)*<i>c</i>(<i>t</i>)</span>, <span class="formula"><i>c</i>(<i>t</i>)</span> is the matched filter
+response, <span class="formula"><i>h</i>(<i>t</i>)</span> is the channel distortion.</p>
+<p>let</p>
+<div class="formula">
+<i>p</i>(<i>t</i>) = <i>g</i>(<i>t</i>)*<i>h</i>(<i>t</i>)*<i>c</i>(<i>t</i>)
+</div>
+<p>The core idea is to reduce the inter-relation of different terms into 0.</p>
+<p>If sample at <span class="formula">(<i>k</i> + 1)<i>T</i></span> for <span class="formula"><i>a</i><sub><i>k</i></sub></span>:</p>
+<div class="formula">
+<i>y</i><sub><i>k</i> + 1</sub> = <i>a</i><span class="scripts"><sub class="script">1</sub><sub class="script"><i>kP</i></sub></span> + <span class="limits"><sub class="limit"><i>nP</i></sub><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>na</i></sub></span><sub><i>k</i> + 1 − <i>n</i></sub> + <i>v</i><sub><i>k</i> + 1</sub>
+</div>
+<p>Thus</p>
+<div class="formula">
+<i>P</i><sub>1</sub> ≠ 0, <i>P</i><sub><i>n</i></sub> = 0, ∀<i>n</i> ≠ <i>k</i>
+</div>
+<p>Or, the pulse shaping function should be 0 at <span class="formula"><i>kT</i></span>, like
+<span class="formula"><i>sinc</i>(<i>x</i>) = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>sin</i>(<i>π</i><i>x</i>)</span><span class="ignored">)/(</span><span class="denominator"><i>π</i><i>x</i></span><span class="ignored">)</span></span></span></p>
+</div>
+</div>
+<div class="section" id="tapped-delay-line-equalization">
+<h2>Tapped delay line equalization</h2>
+<p>Brief review:</p>
+<p>Tapped delay line equalization -&gt; 2G</p>
+<p>Let <span class="formula"><i>c</i>(<i>t</i>)</span> be finite impulse response filter (FIR)</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>c</i>(<i>t</i>) = <span class="limits"><sup class="limit"><i>Nc</i></sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>k</i> =  − <i>N</i></sub></span><sub><i>k</i></sub><i>δ</i>(<i>t</i> − <i>kT</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<p>Start with <span class="formula"><i>t</i></span>, Delay the input signal to each <span class="formula"><i>kT</i></span> with
+corresponding coefficient <span class="formula"><i>c</i><sub><i>k</i></sub></span>. The output requires future part
+of the signal, up to <span class="formula"><i>t</i> + <i>NT</i></span>.</p>
+<p>Below sum bounds are <span class="formula">[ − <i>N</i>, <i>N</i>]</span>.</p>
+<p>receive filter <span class="formula"><i>c</i>(<i>t</i>) = <span class="limits"><span class="limit"><span class="bigoperator">∑</span></span></span><sub><i>k</i></sub><i>c</i><sub><i>k</i></sub><i>δ</i>(<i>t</i> − <i>kT</i>)</span>.</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>p</i>(<i>t</i>) = <i>g</i>(<i>t</i>)*<i>h</i>(<i>t</i>)*<i>c</i>(<i>t</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+ = <i>h</i>’(<i>t</i>)*<span class="limits"><sub class="limit"><i>k</i></sub><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>kc</i></sub></span><i>δ</i>(<i>t</i> − <i>kT</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<div class="formula">
+ = <span class="limits"><sup class="limit"> </sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>k</i></sub></span><i>c</i><sub><i>kh</i></sub>’(<i>t</i> − <i>kT</i>)
+</div>
+<p>In which <span class="formula"><i>h</i>’(<i>t</i>) = <i>g</i>(<i>t</i>)*<i>h</i>(<i>t</i>)</span>.</p>
+<p>Sampling</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>P</i><sub><i>n</i></sub> = <i>P</i>(<i>nT</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><sub class="limit"><i>kh</i></sub><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>kc</i></sub></span>’((<i>n</i> − <i>k</i>)<i>T</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><sub class="limit"><i>kh</i></sub><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>kc</i></sub></span>’<sub><i>n</i> − <i>k</i></sub>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<p>ISI free condition:</p>
+<p><span class="formula"><i>P</i><sub><i>n</i></sub> ≠ 0</span> for <span class="formula"><i>n</i> = 0</span>.</p>
+<p><span class="formula"><i>P</i><sub><i>n</i></sub> = 0</span> for <span class="formula"><i>n</i> ≠ 0</span>.</p>
+<p>In practice, approx by checking within a bound <span class="formula"><i>M</i></span>:
+<span class="formula">±1, ±2, ..., ±<i>M</i></span>.</p>
+<p><span class="formula"><i>n</i> = 0</span>, <span class="formula"><i>P</i><sub>0</sub> = <span class="limits"><span class="limit"><span class="bigoperator">∑</span></span></span><span class="scripts"><sub class="script"><i>kh</i></sub><sub class="script"><i>kc</i></sub></span>’<sub> − <i>k</i></sub></span></p>
+<p><span class="formula"><i>n</i> = ±1</span>, <span class="formula"><i>P</i><sub>1</sub> = <span class="limits"><span class="limit"><span class="bigoperator">∑</span></span></span><span class="scripts"><sub class="script"><i>kh</i></sub><sub class="script"><i>kc</i></sub></span>’<sub>±1 − <i>k</i></sub></span></p>
+<p>...</p>
+<p><span class="formula"><i>n</i> = ±<i>M</i></span>, ...</p>
+<p>Then</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>P</i><sub>0</sub> = <span class="limits"><sub class="limit"><i>kh</i></sub><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit"><i>kc</i></sub></span>’<sub> − <i>k</i></sub>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = [<i>h</i>’<sub><i>N</i></sub>, <i>h</i>’<sub><i>N</i> − 1</sub>, ..., <i>h</i>’<sub> − <i>N</i></sub>][<i>c</i><sub> − <i>N</i></sub>, <i>c</i><sub> − <i>N</i> + 1</sub>, ..., <i>c</i><sub><i>N</i></sub>]<sup><i>T</i></sup>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<p>similarly, <span class="formula"><i>P</i><sub>1</sub> = ...</span></p>
+<p>finally,</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+[<i>P</i><sub><i>M</i></sub>, <i>P</i><sub><i>M</i> − 1</sub>, ..., <i>P</i><sub> − <i>M</i></sub>]<sup><i>T</i></sup> = [...][...]<sup><i>T</i></sup>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+<i>P</i> = <i>H</i>⋅<i>C</i>
+</span>
+
+</span>
+</span>
+</div>
+<p>The formula is used to determine the actual values of <span class="formula"><i>c</i><sub><i>k</i></sub></span>, which
+will finally result in only non-zero <span class="formula"><i>P</i><sub>0</sub></span>.</p>
+<p>In reality the computation is required to be finished in milliseconds,
+which restricts the size of N/M.</p>
+<p>Also only neighboring symbols are considered in interference, so the
+size of N and M are small in most cases.</p>
+<p>PAM: <span class="formula"><i>s</i>(<i>t</i>) = <span class="limits"><span class="limit"><span class="bigoperator">∑</span></span></span><span class="scripts"><sub class="script"><i>kg</i></sub><sub class="script"><i>ka</i></sub></span>(<i>t</i> − <i>kT</i>)</span>, baseband.</p>
+</div>
+<div class="section" id="passband-digital-transmission">
+<h2>Passband digital transmission</h2>
+<p>Carrier to modulate...</p>
+<p>Consider binary modulation: bit 1, 0</p>
+<div class="section" id="amplitude-shift-keying">
+<h3>Amplitude shift keying</h3>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>s</i>(<i>t</i>) = <span class="array"><span class="arrayrow"><span class="bracket align-l">⎧</span></span><span class="arrayrow"><span class="bracket align-l">⎨</span></span><span class="arrayrow"><span class="bracket align-l">⎩</span></span></span><span class="bracketcases">
+<span class="arrayrow">
+<span class="case align-l">
+<i>A</i><sub><i>ccos</i></sub>(2<i>π</i><i>f</i><sub><i>ct</i></sub>),  
+</span>
+<span class="case align-l">
+<i>t</i> ∈ [0, <i>T</i>]<span class="text"> if bit 1</span> 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+  
+</span>
+<span class="case align-l">
+  
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+0,  
+</span>
+<span class="case align-l">
+<i>otherwise</i><span class="unknown">\end</span><i>cases</i><span class="unknown">\end</span><i>align</i>* 
+</span>
+
+</span>
+
+</span>
+
+</span>
+
+</span>
+</span>
+</div>
+</div>
+<div class="section" id="frequency-shift-keying">
+<h3>Frequency shift keying</h3>
+<div class="formula">
+<i>s</i>(<i>t</i>) = <span class="array"><span class="arrayrow"><span class="bracket align-l">⎧</span></span><span class="arrayrow"><span class="bracket align-l">⎪</span></span><span class="arrayrow"><span class="bracket align-l">⎨</span></span><span class="arrayrow"><span class="bracket align-l">⎪</span></span><span class="arrayrow"><span class="bracket align-l">⎩</span></span></span><span class="bracketcases">
+<span class="arrayrow">
+<span class="case align-l">
+<i>A</i><sub><i>ccos</i></sub>(2<i>π</i><i>f</i><sub><i>c</i>1</sub><i>t</i>),  
+</span>
+<span class="case align-l">
+<i>t</i> ∈ [0, <i>T</i>]<span class="text"> if bit 1</span> 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+  
+</span>
+<span class="case align-l">
+  
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+<i>A</i><sub><i>ccos</i></sub>(2<i>π</i><i>f</i><sub><i>c</i>2</sub><i>t</i>),  
+</span>
+<span class="case align-l">
+<i>t</i> ∈ [0, <i>T</i>]<span class="text"> if bit 0</span> 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+  
+</span>
+<span class="case align-l">
+  
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+ 
+</span>
+
+</span>
+
+</span>
+
+</div>
+</div>
+<div class="section" id="phase-shifting-keying">
+<h3>Phase shifting keying</h3>
+<div class="formula">
+<i>s</i>(<i>t</i>) = <span class="array"><span class="arrayrow"><span class="bracket align-l">⎧</span></span><span class="arrayrow"><span class="bracket align-l">⎪</span></span><span class="arrayrow"><span class="bracket align-l">⎨</span></span><span class="arrayrow"><span class="bracket align-l">⎪</span></span><span class="arrayrow"><span class="bracket align-l">⎩</span></span></span><span class="bracketcases">
+<span class="arrayrow">
+<span class="case align-l">
+<i>A</i><sub><i>ccos</i></sub>(2<i>π</i><i>f</i><sub><i>c</i></sub><i>t</i> + 0),  
+</span>
+<span class="case align-l">
+<i>t</i> ∈ [0, <i>T</i>]<span class="text"> if bit 1</span> 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+  
+</span>
+<span class="case align-l">
+  
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+<i>A</i><sub><i>ccos</i></sub>(2<i>π</i><i>f</i><sub><i>c</i></sub><i>t</i> + <i>π</i>),  
+</span>
+<span class="case align-l">
+<i>t</i> ∈ [0, <i>T</i>]<span class="text"> if bit 0</span> 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+  
+</span>
+<span class="case align-l">
+  
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+ 
+</span>
+
+</span>
+
+</span>
+
+</div>
+</div>
+</div>
+<div class="section" id="demodulation">
+<h2>Demodulation</h2>
+<p>In binary sit.:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>s</i>(<i>t</i>) = <span class="array"><span class="arrayrow"><span class="bracket align-l">⎧</span></span><span class="arrayrow"><span class="bracket align-l">⎨</span></span><span class="arrayrow"><span class="bracket align-l">⎩</span></span></span><span class="bracketcases">
+<span class="arrayrow">
+<span class="case align-l">
+<i>s</i><sub>1</sub>(<i>t</i>),  
+</span>
+<span class="case align-l">
+<span class="text">bit = 1</span> 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+  
+</span>
+<span class="case align-l">
+  
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+<i>s</i><sub>0</sub>(<i>t</i>),  
+</span>
+<span class="case align-l">
+<span class="text">bit = 0</span><span class="unknown">\end</span><i>cases</i><span class="unknown">\end</span><i>align</i>* 
+</span>
+
+</span>
+
+</span>
+
+</span>
+
+</span>
+</span>
+</div>
+<p>Receive signal: ideal channel, with AWGN noise</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>x</i>(<i>t</i>) = <i>s</i>(<i>t</i>) + <i>n</i>(<i>t</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<p>Again:</p>
+<div class="formula">
+ → <span class="text">matched filter</span> → <span class="text">sampling</span> → 
+</div>
+<p>which is equivalent to mul sig <span class="formula"><i>g</i>(<i>t</i>)</span> and integrate.</p>
+<p>Two branches: for <span class="formula"><i>s</i><sub>1</sub></span> and <span class="formula"><i>s</i><sub>0</sub></span> each, and feed through a
+detector to generate 0 or 1. The detector works by differentiate the
+quantity of <span class="formula"><i>r</i><sub>1</sub></span> (output of branch for <span class="formula"><i>s</i><sub>1</sub></span>) and
+<span class="formula"><i>r</i><sub>0</sub></span>.</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>b̂</i><sub>0</sub> = <span class="array"><span class="arrayrow"><span class="bracket align-l">⎧</span></span><span class="arrayrow"><span class="bracket align-l">⎪</span></span><span class="arrayrow"><span class="bracket align-l">⎨</span></span><span class="arrayrow"><span class="bracket align-l">⎪</span></span><span class="arrayrow"><span class="bracket align-l">⎩</span></span></span><span class="bracketcases">
+<span class="arrayrow">
+<span class="case align-l">
+1<span class="text">  if </span><i>r</i><sub>1</sub> − <i>r</i><sub>0</sub> ≥ <i>λ</i> 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+  
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+0<span class="text">  if </span><i>r</i><sub>1</sub> − <i>r</i><sub>0</sub><span class="unknown">\lt</span><i>λ</i> 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+  
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+<span class="unknown">\end</span><i>cases</i><span class="unknown">\end</span><i>align</i>* 
+</span>
+
+</span>
+
+</span>
+
+</span>
+
+</span>
+</span>
+</div>
+<p>In which <span class="formula"><i>λ</i></span> is the threshold value.</p>
+<p>Define:</p>
+<ol class="arabic simple">
+<li><span class="formula"><i>E</i><sub>1</sub> = <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="scripts"><sup class="script"><i>T</i></sup><sub class="script">0</sub></span><span class="unknown">\abs</span><i>s</i><sub>1</sub>(<i>t</i>)<sup>2</sup><i>dt</i></span>, <span class="formula"><i>E</i><sub>0</sub> = ...</span></li>
+<li><span class="formula"><i>R</i> = <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="scripts"><sup class="script"><i>T</i></sup><sub class="script">0</sub></span><i>s</i><sub>1</sub>(<i>t</i>)<i>s</i><sub>0</sub>(<i>t</i>)<i>dt</i></span></li>
+</ol>
+<p>If transmit bit 1:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>x</i>(<i>t</i>) = <i>s</i><sub>1</sub>(<i>t</i>) + <i>w</i>(<i>t</i>)
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+<i>r</i><sub>1</sub> = <span class="limits"><sup class="limit"><i>T</i></sup><span class="limit"><span class="bigoperator integral">∫</span></span><sub class="limit">0</sub></span><i>x</i>(<i>t</i>)⋅<i>s</i><sub>1</sub>(<i>t</i>)<i>dt</i>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <i>E</i><sub>1</sub> + <span class="limits"><sup class="limit"><i>Tw</i></sup><span class="limit"><span class="bigoperator integral">∫</span></span><sub class="limit">0</sub></span>(<i>t</i>)<i>s</i><sub>1</sub>(<i>t</i>)<i>dt</i>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <i>E</i><sub>1</sub> + <i>w</i><sub>1</sub>
+</span>
+
+</span>
+</span>
+</div>
+<p>Note: matched filter is synchronized with the received signal. (time
+delay match)</p>
+<p>For <span class="formula"><i>r</i><sub>0</sub></span>:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>r</i><sub>0</sub> = <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="scripts"><sup class="script"><i>Tx</i></sup><sub class="script">0</sub></span>(<i>t</i>)<i>s</i><sub>0</sub>(<i>t</i>)<i>dt</i>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <i>R</i> + <span class="limits"><sup class="limit"><i>Tw</i></sup><span class="limit"><span class="bigoperator integral">∫</span></span><sub class="limit">0</sub></span>(<i>t</i>)<i>s</i><sub>0</sub>(<i>t</i>)<i>dt</i>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <i>R</i> + <i>w</i><sub>0</sub>
+</span>
+
+</span>
+</span>
+</div>
+<p>so if bit 1 is transmitted:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>r</i><sub>1</sub> − <i>r</i><sub>0</sub> = <i>E</i><sub>1</sub> − <i>R</i> + <i>w</i><sub>1</sub> − <i>w</i><sub>0</sub>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<p>Similarly, if bit 0 is transmitted:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>r</i><sub>1</sub> − <i>r</i><sub>0</sub> = <i>R</i> − <i>E</i><sub>0</sub> + <i>w</i><sub>1</sub> − <i>w</i><sub>0</sub>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<p>so two cases:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>r</i><sub>1</sub> − <i>r</i><sub>0</sub> = <span class="array"><span class="arrayrow"><span class="bracket align-l">⎧</span></span><span class="arrayrow"><span class="bracket align-l">⎪</span></span><span class="arrayrow"><span class="bracket align-l">⎨</span></span><span class="arrayrow"><span class="bracket align-l">⎪</span></span><span class="arrayrow"><span class="bracket align-l">⎩</span></span></span><span class="bracketcases">
+<span class="arrayrow">
+<span class="case align-l">
+<i>E</i><sub>1</sub> − <i>R</i> + <i>w</i><sub>1</sub> − <i>w</i><sub>0</sub> 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+  
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+<i>R</i> − <i>E</i><sub>0</sub> + <i>w</i><sub>1</sub> − <i>w</i><sub>0</sub> 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+  
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="case align-l">
+<span class="unknown">\end</span><i>cases</i><span class="unknown">\end</span><i>align</i>* 
+</span>
+
+</span>
+
+</span>
+
+</span>
+
+</span>
+</span>
+</div>
+<p>since both <span class="formula"><i>w</i><sub>1</sub></span> and <span class="formula"><i>w</i><sub>0</sub></span> are gaussian, the sum is also
+gaussian, with 0 mean.</p>
+<p>About the variance:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>E</i>(<i>v</i><sup>2</sup>) = <i>E</i>[<span class="unknown">\abs</span><span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>w</i>(<i>t</i>)(<i>s</i><sub>1</sub>(<i>t</i>) − <i>s</i><sub>0</sub>(<i>t</i>))<i>dt</i><sup>2</sup>]
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>E</i>[<i>w</i>(<i>t</i>)<i>w</i>(<i>τ</i>)](<i>s</i><sub>1</sub>(<i>t</i>) − <i>s</i><sub>0</sub>(<i>t</i>))⋅(<i>s</i><sub>1</sub>(<i>t</i>) − <i>s</i><sub>0</sub>(<i>t</i>))<i>dtd</i><i>τ</i>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>N</i><sub>0</sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span>...
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>N</i><sub>0</sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span>[<i>E</i><sub>1</sub> + <i>E</i><sub>0</sub> − 2<i>R</i>]
+</span>
+
+</span>
+</span>
+</div>
+<p>The <span class="formula"><i>λ</i></span> should be on the intersection of the two gaussian
+distribution:</p>
+<div class="formula">
+<i>λ</i> = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>E</i><sub>1</sub> − <i>R</i> + <i>R</i> − <i>E</i><sub>0</sub></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span>
+</div>
+</div>
+<div class="section" id="section-2">
+<span id="target-2"></span><h2>12.8</h2>
+<div class="section" id="qpsk-circle">
+<h3>QPSK (circle):</h3>
+<p>complex symbols: <span class="formula"><i>a</i><sub><i>k</i></sub></span> ,
+<span class="formula"><i>s</i>(<i>t</i>) = <i>Re</i>{<i>a</i><span class="scripts"><sub class="script"><i>ce</i></sub><sub class="script"><i>kA</i></sub></span><sup><i>j</i>2<i>π</i><i>f</i><sub><i>ct</i></sub></sup>} = <i>AcRe</i>[<i>a</i><sub><i>k</i></sub>]<i>cos</i>(...) − <i>A</i><sub><i>cIm</i></sub>[<i>a</i><sub><i>k</i></sub>]<i>sin</i>(...)</span></p>
+<p><span class="formula"><i>M</i> = 8</span>, three bits: <span class="formula"><i>R</i> = 3</span>, : the 8 partition of circle.</p>
+<p><span class="formula"><i>A</i> ∈ [±<span class="fraction"><span class="ignored">(</span><span class="numerator"><i>π</i></span><span class="ignored">)/(</span><span class="denominator">8</span><span class="ignored">)</span></span>, ±<span class="fraction"><span class="ignored">(</span><span class="numerator">3<i>π</i></span><span class="ignored">)/(</span><span class="denominator">8</span><span class="ignored">)</span></span>, ±<span class="fraction"><span class="ignored">(</span><span class="numerator">5<i>π</i></span><span class="ignored">)/(</span><span class="denominator">8</span><span class="ignored">)</span></span>, ±<span class="fraction"><span class="ignored">(</span><span class="numerator">7<i>π</i></span><span class="ignored">)/(</span><span class="denominator">8</span><span class="ignored">)</span></span>]</span></p>
+<p>adv: only changing phase, with constant power.</p>
+<p>For better result: add pulse shaping after the <span class="formula"><i>a</i><sub><i>k</i></sub></span>.</p>
+</div>
+<div class="section" id="qam-square">
+<h3>QAM (square):</h3>
+<p>on different Q and I channels: each with 4, in total 16: 16-QAM</p>
+<p>32-QAM to 256-QAM, 5 bit to 8 bit: adaptive in practical for better
+quanlity.</p>
+<p>In QAM: average power: is normalized to 1. The power of each point is
+changing.</p>
+</div>
+<div class="section" id="ofdm">
+<h3>OFDM</h3>
+<p>orthogonal frequency division mul.</p>
+<p>dispersive channel:</p>
+<ul class="simple">
+<li>with large symbol interval: fine since the gap competent the change</li>
+<li>with small interval: significant influence</li>
+</ul>
+<p>keep large symbol duration, while using different frequencies: FDM</p>
+<p>Orthogonal idea: using <span class="formula"><i>sin</i></span> and <span class="formula"><i>cos</i></span> interchangably.</p>
+<p>Basic idea: orthogonal frequency</p>
+<p>sub-carrier: shifted carrier.</p>
+<p>T: symbol interval, B is inverse of T, then the shifted:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<i>cos</i>(2<i>π</i>(<i>f</i><sub><i>c</i></sub> + <i>iB</i>)<i>t</i>), <i>t</i> ∈ [0, <i>T</i>]
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<p>orthogonal:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><i>cos</i>(2<i>π</i>(<i>f</i><sub><i>c</i></sub> + <i>iB</i>)<i>t</i>)⋅<i>cos</i>(2<i>π</i>(<i>f</i><sub><i>c</i></sub> + <i>lB</i>)<i>t</i>)<i>dt</i>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="fraction"><span class="ignored">(</span><span class="numerator">12</span><span class="ignored">)/(</span><span class="denominator"><i>cos</i></span><span class="ignored">)</span></span>(2<i>π</i>(<i>i</i> − <i>l</i>)<i>Bt</i>)<i>dt</i> + <span class="limits"><span class="limit"><span class="bigoperator integral">∫</span></span></span><span class="fraction"><span class="ignored">(</span><span class="numerator">12</span><span class="ignored">)/(</span><span class="denominator"><i>cos</i></span><span class="ignored">)</span></span>((4<i>π</i><i>f</i><sub><i>c</i></sub> + (<i>i</i> + <i>l</i>)<i>B</i>)<i>t</i>)<i>dt</i>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="fraction"><span class="ignored">(</span><span class="numerator">12</span><span class="ignored">)/(</span><span class="denominator"><span class="fraction"><span class="ignored">(</span><span class="numerator"><i>sin</i>(2<i>π</i>(<i>i</i> − <i>l</i>)<i>Bt</i>)</span><span class="ignored">)/(</span><span class="denominator">2<i>π</i>(<i>i</i> − <i>l</i>)<i>B</i></span><span class="ignored">)</span></span></span><span class="ignored">)</span></span>⋅<i>T</i>⋅<span class="fraction"><span class="ignored">(</span><span class="numerator">1</span><span class="ignored">)/(</span><span class="denominator"><i>T</i></span><span class="ignored">)</span></span>
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <span class="fraction"><span class="ignored">(</span><span class="numerator"><i>T</i></span><span class="ignored">)/(</span><span class="denominator">2</span><span class="ignored">)</span></span><i>sin</i>(2(<i>i</i> − <i>l</i>)<i>B</i>)
+</span>
+
+</span>
+</span>
+</div>
+<p>Modulation:</p>
+<div class="formula">
+<span class="environment align"><span class="arrayrow">
+<span class="arraycell align-r">
+<span class="limits"><sup class="limit"><i>N</i> − 1</sup><span class="limit"><span class="bigoperator">∑</span></span><sub class="limit">0</sub></span>[<i>Re</i>(<i>a</i><sub><i>i</i></sub>)<i>cos</i>(2<i>π</i>(<i>f</i><sub><i>c</i></sub> + <i>iB</i>)<i>t</i>) − <i>Im</i>(<i>a</i><sub><i>i</i></sub>)<i>sin</i>(2<i>π</i>(<i>f</i><sub><i>c</i></sub> + <i>iB</i>)<i>t</i>)]
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ = <i>Re</i>[<span class="limits"><span class="limit"><span class="bigoperator">∑</span></span></span><i>a</i><span class="scripts"><sup class="script"><i>j</i>2<i>π</i>(<i>f</i><sub><i>c</i></sub> + <i>iB</i>)<i>t</i></sup><sub class="script"><i>ie</i></sub></span>]
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+ 
+</span>
+
+</span>
+<span class="arrayrow">
+<span class="arraycell align-r">
+
+</span>
+
+</span>
+</span>
+</div>
+<p>Then tear into complex envelop: ..., then it is clear that one carrier
+is enough for generating the signal.</p>
+<p>Outline:</p>
+<ul class="simple">
+<li>Random process: the system behavior, autocorrelation, power, energy,
+the variances, the relationship, the noise</li>
+<li>Sampling theory, used in content</li>
+<li>PAM: PCM: symbol mapping, receiver: matched filter, correlation
+receiver; error analysis,</li>
+<li>Passband, carrier, ASK, PSK, FSK. bit error rate</li>
+<li>QPSK: two dimension, complex symbol, higher order.</li>
+</ul>
+</div>
+</div>
+</div>
+                    </div>
+                    
+                    
+
+                    
+
+                    
+<div class="flex flex-col md:flex-row md:justify-between -mx-2 mt-4 px-2 pt-4 border-t">
+    <div>
+        
+        <span class="block font-bold">Previous</span>
+        <a href="/docs/test-doc/test/" class="block">Test</a>
+        
+    </div>
+    <div class="md:text-right mt-4 md:mt-0">
+        
+    </div>
+</div>
+
+                    
+                </div>
+                
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        hljs.initHighlightingOnLoad();
+        changeSidebarHeight();
+        switchDocToc();
+    })
+</script>
+
+
+
+
+
+
+
+
+
+      </div>
+    </div>
+    
+  </main>
+  <footer class="pl-scrollbar">
+    <div class="w-full max-w-screen-xl mx-auto"><div class="text-center p-6 pin-b">
+    <p class="text-sm text-tertiary-text">&copy; 2021 <a href="https://blog.xen134.cn/">xen134</a>
+ &middot;  Powered by the <a href="https://github.com/wangchucheng/hugo-eureka" class="hover:text-eureka">Eureka</a> theme for <a href="https://gohugo.io" class="hover:text-eureka">Hugo</a></p>
+</div></div>
+  </footer>
+</body>
+
+</html>
