@@ -311,49 +311,49 @@ type itab struct {
 <p>实例一：指针作为receiver时</p>
 <p>实例代码如下：</p>
 <pre><code class="language-go">package main
-   
+
 type Abstract interface {
-     testFunc()
+ 	testFunc()
 }
-   
+
 type Actual struct {
-     b int
-     c int
+		b int
+		c int
 }
-   
+
 func (t *Actual) testFunc() { 
-     var a int = 1
-     a = a + t.b + t.c	// Only used to shut the compiler
-     println(a)			// Only used to shut the compiler
+		var a int = 1
+		a = a + t.b + t.c	// Only used to shut the compiler
+		println(a)			// Only used to shut the compiler
 }
-   
+
 func main() {
-     var m Abstract = &amp;Actual{b:23, c:25}	// Line 19
-     m.testFunc()	// Line 20
+		var m Abstract = &amp;Actual{b:23, c:25}	// Line 19
+		m.testFunc()	// Line 20
 }
 </code></pre>
 <p>在这里我们创建了一个interface <code>Abstract</code>，它有一个名为<code>testFunc</code>的方法。<code>Actual</code>结构体实现了这个interface，且receiver为<code>*Actual</code>类型。</p>
 <p>通过命令<code>go tool compile -N -l -S main.go &gt; main.asm</code>， 我们生成了汇编代码并存储到当前目录下的<code>main.asm</code>文件。内容如下（节选）：</p>
-<pre><code class="language-assembly"> ......
- 0x001d 00029 (main.go:19)	LEAQ	type.&quot;&quot;.Actual(SB), AX
- 0x0024 00036 (main.go:19)	MOVQ	AX, (SP)
- 0x0028 00040 (main.go:19)	CALL	runtime.newobject(SB)
- 0x002d 00045 (main.go:19)	MOVQ	8(SP), AX
- 0x0032 00050 (main.go:19)	MOVQ	AX, 16(SP)
- 0x0037 00055 (main.go:19)	MOVQ	$23, (AX)
- 0x003e 00062 (main.go:19)	MOVQ	16(SP), AX
- 0x0045 00069 (main.go:19)	MOVQ	$25, 8(AX)
- 0x004d 00077 (main.go:19)	MOVQ	16(SP), AX
- 0x0052 00082 (main.go:19)	MOVQ	AX, 24(SP)
- 0x0057 00087 (main.go:19)	LEAQ	go.itab.*&quot;&quot;.Actual,&quot;&quot;.Abstract(SB), CX
- 0x005e 00094 (main.go:19)	MOVQ	CX, &quot;&quot;.m+32(SP)
- 0x0063 00099 (main.go:19)	MOVQ	AX, &quot;&quot;.m+40(SP)
- 0x0068 00104 (main.go:20)	MOVQ	&quot;&quot;.m+32(SP), AX
- 0x006f 00111 (main.go:20)	MOVQ	24(AX), AX
- 0x0073 00115 (main.go:20)	MOVQ	&quot;&quot;.m+40(SP), CX
- 0x0078 00120 (main.go:20)	MOVQ	CX, (SP)
- 0x007c 00124 (main.go:20)	CALL	AX
- ......
+<pre><code class="language-assembly">	......
+	0x001d 00029 (main.go:19)	LEAQ	type.&quot;&quot;.Actual(SB), AX
+	0x0024 00036 (main.go:19)	MOVQ	AX, (SP)
+	0x0028 00040 (main.go:19)	CALL	runtime.newobject(SB)
+	0x002d 00045 (main.go:19)	MOVQ	8(SP), AX
+	0x0032 00050 (main.go:19)	MOVQ	AX, 16(SP)
+	0x0037 00055 (main.go:19)	MOVQ	$23, (AX)
+	0x003e 00062 (main.go:19)	MOVQ	16(SP), AX
+	0x0045 00069 (main.go:19)	MOVQ	$25, 8(AX)
+	0x004d 00077 (main.go:19)	MOVQ	16(SP), AX
+	0x0052 00082 (main.go:19)	MOVQ	AX, 24(SP)
+	0x0057 00087 (main.go:19)	LEAQ	go.itab.*&quot;&quot;.Actual,&quot;&quot;.Abstract(SB), CX
+	0x005e 00094 (main.go:19)	MOVQ	CX, &quot;&quot;.m+32(SP)
+	0x0063 00099 (main.go:19)	MOVQ	AX, &quot;&quot;.m+40(SP)
+	0x0068 00104 (main.go:20)	MOVQ	&quot;&quot;.m+32(SP), AX
+	0x006f 00111 (main.go:20)	MOVQ	24(AX), AX
+	0x0073 00115 (main.go:20)	MOVQ	&quot;&quot;.m+40(SP), CX
+	0x0078 00120 (main.go:20)	MOVQ	CX, (SP)
+	0x007c 00124 (main.go:20)	CALL	AX
+	......
 </code></pre>
 <p>go语言在编译过程中并没有生成实际汇编代码的步骤。上述生成的是架构独立的伪汇编代码。这种设计方便了go语言编译器的bootstrap，同时也降低了汇编的阅读难度（无需考虑架构细节）。这里呈现的汇编代码精简掉了与执行逻辑关系不大的步骤和一些临时量的命名。</p>
 <p>代码中的<code>(A~Z)(A~Z)</code>为寄存器，<code>$(0~9)+</code>为数值常量， <code>(0~9)+((A~Z)(A~Z))</code>为寄存器存储的地址+偏移（字节为单位）。以上代码片段中指令的操作单位均为8字节（指令结尾的q意为quadword，64-bit）。<code>MOVQ</code>可理解为在操作时解引用地址（dereference）；<code>LEAQ</code>可理解为只处理原始数据（即地址）。</p>
@@ -368,46 +368,46 @@ func main() {
 <p>示例二：结构体作为receiver时</p>
 <p>示例代码如下：</p>
 <pre><code class="language-go">package main
-   
+
 type Abstract interface {
-     testFunc()
+		testFunc()
 }
-   
+
 type Actual struct {
-     b int
-     c int
+		b int
+		c int
 }
-   
+
 func (t Actual) testFunc() { 
-     var a int = 1
-     a = a + t.b + t.c
-     println(a)
+		var a int = 1
+		a = a + t.b + t.c
+		println(a)
 }
-   
+
 func main() {
-     var m Abstract = Actual{b:23, c:25}	// Line 19
-     m.testFunc()	// Line 20
+		var m Abstract = Actual{b:23, c:25}	// Line 19
+		m.testFunc()	// Line 20
 }
 </code></pre>
 <p>汇编如下：</p>
-<pre><code class="language-assembly"> ......
- 0x0025 00037 (main.go:19)	MOVQ	$23, 32(SP)
- 0x002e 00046 (main.go:19)	MOVQ	$25, 40(SP)
- 0x0037 00055 (main.go:19)	LEAQ	go.itab.&quot;&quot;.Actual,&quot;&quot;.Abstract(SB), AX
- 0x003e 00062 (main.go:19)	MOVQ	AX, (SP)
- 0x0042 00066 (main.go:19)	LEAQ	32(SP), AX
- 0x0047 00071 (main.go:19)	MOVQ	AX, 8(SP)
- 0x004c 00076 (main.go:19)	CALL	runtime.convT2Inoptr(SB)
- 0x0051 00081 (main.go:19)	MOVQ	16(SP), AX
- 0x0056 00086 (main.go:19)	MOVQ	24(SP), CX
- 0x005b 00091 (main.go:19)	MOVQ	AX, &quot;&quot;.m+48(SP)
- 0x0060 00096 (main.go:19)	MOVQ	CX, &quot;&quot;.m+56(SP)
- 0x0065 00101 (main.go:20)	MOVQ	&quot;&quot;.m+48(SP), AX
- 0x006c 00108 (main.go:20)	MOVQ	24(AX), AX
- 0x0070 00112 (main.go:20)	MOVQ	&quot;&quot;.m+56(SP), CX
- 0x0075 00117 (main.go:20)	MOVQ	CX, (SP)
- 0x0079 00121 (main.go:20)	CALL	AX
- ......
+<pre><code class="language-assembly">	......
+	0x0025 00037 (main.go:19)	MOVQ	$23, 32(SP)
+	0x002e 00046 (main.go:19)	MOVQ	$25, 40(SP)
+	0x0037 00055 (main.go:19)	LEAQ	go.itab.&quot;&quot;.Actual,&quot;&quot;.Abstract(SB), AX
+	0x003e 00062 (main.go:19)	MOVQ	AX, (SP)
+	0x0042 00066 (main.go:19)	LEAQ	32(SP), AX
+	0x0047 00071 (main.go:19)	MOVQ	AX, 8(SP)
+	0x004c 00076 (main.go:19)	CALL	runtime.convT2Inoptr(SB)
+	0x0051 00081 (main.go:19)	MOVQ	16(SP), AX
+	0x0056 00086 (main.go:19)	MOVQ	24(SP), CX
+	0x005b 00091 (main.go:19)	MOVQ	AX, &quot;&quot;.m+48(SP)
+	0x0060 00096 (main.go:19)	MOVQ	CX, &quot;&quot;.m+56(SP)
+	0x0065 00101 (main.go:20)	MOVQ	&quot;&quot;.m+48(SP), AX
+	0x006c 00108 (main.go:20)	MOVQ	24(AX), AX
+	0x0070 00112 (main.go:20)	MOVQ	&quot;&quot;.m+56(SP), CX
+	0x0075 00117 (main.go:20)	MOVQ	CX, (SP)
+	0x0079 00121 (main.go:20)	CALL	AX
+	......
 </code></pre>
 <p>同上，删去了无关紧要的细节。鉴于例1中已有执行的详细分析，这里的解析会略去一部分细节。</p>
 <p>本例中首先在栈上SP+32的位置初始化了<code>Actual</code>结构体，并创建了与<code>Actual</code>结构体和<code>Abstract</code>接口关联的<code>itab</code>对象。<code>itab</code>对象和<code>Actual</code>结构体的地址分别被复制到栈顶和栈顶+8的位置。接下来代码调用了函数<code>runtime.convT2Inoptr</code>（实现<a href="https://github.com/golang/go/blob/master/src/runtime/iface.go#L420">在此</a>）。它接受一个<code>itab</code>指针和一个<code>unsafe</code>指针，将<code>unsafe</code>指针指向的对象拷贝到堆上并以拷贝后对象的地址作为<code>data</code>字段，<code>itab</code>作为<code>tab</code>字段构建一个<code>iface</code>对象返回。鉴于<code>iface</code>结构体大小为16个字节（两个指针字段），该函数返回后栈上<code>SP+16</code>到<code>SP+24</code>的位置即为新构建的<code>iface</code>对象。这里可以看出有对<code>Actual</code>结构体对象的拷贝操作，而例一中没有。这是因为go语言默认赋值均为拷贝（类似C++），将<code>Actual</code>结构体赋给接口变量m便执行了一次拷贝。所以<code>Abstract</code>接口变量m指向的实际对象是我们创建的<code>Actual</code>结构体的一个在堆上的拷贝。</p>
