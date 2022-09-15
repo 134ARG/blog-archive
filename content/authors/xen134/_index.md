@@ -1,5 +1,5 @@
 ---
-title: xen134, Zhou Ruiyu
+title: xen134
 draft: false
 role: Student
 avatar: images/headimg.jpeg
